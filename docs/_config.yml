@@ -60,6 +60,4 @@ kramdown:
   input: GFM
   hard_wrap: true
 
-```
-goatcounter_code: [rpathangi]
-```
+goatcounter_code: rpathangi
