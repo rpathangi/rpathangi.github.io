@@ -61,5 +61,5 @@ kramdown:
   hard_wrap: true
 
 ```yml
-goatcounter_code: [rpathangi]
+goatcounter_code: rpathangi
 ```
