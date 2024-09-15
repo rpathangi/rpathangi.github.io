@@ -1,8 +1,10 @@
 ---
 title: "stints"
 tags:
-    - labs
-date: "2023-09-05"
+    - blogs
+    - workshops
+    - prototypes
+date: "2023-09-15"
 bookmark: true
 ---
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
