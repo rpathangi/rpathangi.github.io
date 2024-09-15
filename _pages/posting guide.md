@@ -166,3 +166,20 @@ Here is the structure introduced in our repo:
 |   ├── Subcatecory c
 |       └── index.md
 ```
+
+<script src="https://giscus.app/client.js"
+        data-repo="rpathangi/rpathangi.github.io"
+        data-repo-id="R_kgDOMw51CA"
+        data-category="General"
+        data-category-id="DIC_kwDOMw51CM4Cidfb"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="dark"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>

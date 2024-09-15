@@ -51,8 +51,25 @@ Paste those values to `_config.yml` placed in the root directory.
 
 ```
 # External API
-giscus_repo: "[ENTER REPO HERE]"
-giscus_repoId: "[ENTER REPO ID HERE]"
-giscus_category: "[ENTER CATEGORY NAME HERE]"
-giscus_categoryId: "[ENTER CATEGORY ID HERE]"
+giscus_repo: rpathangi/rpathangi.github.io
+giscus_repoId: R_kgDOMw51CA
+giscus_category: General
+giscus_categoryId: DIC_kwDOMw51CM4Cidfb
 ```
+
+<script src="https://giscus.app/client.js"
+        data-repo="rpathangi/rpathangi.github.io"
+        data-repo-id="R_kgDOMw51CA"
+        data-category="General"
+        data-category-id="DIC_kwDOMw51CM4Cidfb"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="dark"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
