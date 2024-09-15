@@ -1,5 +1,5 @@
 ---
-title: "AWS Services for HCLS"
+title: "services"
 tags:
     - services
 date: "2024-09-14"
