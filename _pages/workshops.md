@@ -1,9 +1,7 @@
 ---
 title: "workshops"
 tags:
-    - user manual
-    - markdown
-    - writing format
+    - labs
 date: "2023-09-05"
 thumbnail: "/assets/img/thumbnail/sample.png"
 bookmark: true

@@ -3,7 +3,7 @@ title: "services"
 tags:
     - services
 date: "2024-09-14"
-thumbnail: "https://i.ibb.co/V9j2Qsg/giscus-Wl0-X3byd-az-U68-1.webp"
+thumbnail: "/assets/img/thumbnail/sample.png"
 bookmark: true
 ---
 

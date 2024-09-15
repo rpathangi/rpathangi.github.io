@@ -1,9 +1,9 @@
 ---
-title: "events"
+title: "sessions"
 tags:
     - training
 date: "2024-09-13"
-thumbnail: "https://i.ibb.co/xj20N3N/card.webp"
+thumbnail: "/assets/img/thumbnail/sample.png"
 bookmark: true
 ---
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
