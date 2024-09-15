@@ -1,5 +1,5 @@
 ---
-title: "01 services"
+title: "services"
 tags:
     - services
 date: "2024-09-14"

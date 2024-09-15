@@ -1,5 +1,5 @@
 ---
-title: "02 solutions"
+title: "solutions"
 tags:
     - use cases
 date: "2024-09-14"
