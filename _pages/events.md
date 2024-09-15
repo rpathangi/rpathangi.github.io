@@ -1,5 +1,5 @@
 ---
-title: "04 events"
+title: "events"
 tags:
     - training
 date: "2024-09-13"
