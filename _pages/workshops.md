@@ -1,5 +1,5 @@
 ---
-title: "03 workshops"
+title: "workshops"
 tags:
     - user manual
     - markdown
