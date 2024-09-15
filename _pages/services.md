@@ -17,19 +17,11 @@ bookmark: true
 
 ## Service Name
 
-`HealthLake
+`HealthLake`
 
 ![Discussion](https://i.ibb.co/P1FV02D/giscus-00.png)
 
 ![](https://i.ibb.co/Z154x8P/giscus-04.png)
-
-```
-# External API
-giscus_repo: rpathangi/rpathangi.github.io
-giscus_repoId: R_kgDOMw51CA
-giscus_category: General
-giscus_categoryId: DIC_kwDOMw51CM4Cidfb
-```
 
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"

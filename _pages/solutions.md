@@ -2,7 +2,7 @@
 title: "solutions"
 tags:
     - use cases
-date: "2024-09-24"
+date: "2024-09-14"
 thumbnail: "/assets/img/thumbnail/sample.png"
 bookmark: true
 ---
