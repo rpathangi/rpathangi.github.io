@@ -5,17 +5,17 @@ tags:
 date: "2023-09-05"
 bookmark: true
 ---
-
-# Headings
----
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
-# Collaboration Opportunities
+## Blog Opportunities
+---
 
 |Use Case|Details|
 |---|---|
-|*Security*|Write a blog on how to migrate users from ***3rd party identity providers*** integrated with SSO to ***IAC***|
+|*Security*|Write a blog on how to migrate users from ***3rd party identity providers*** integrated with SSO to ***Identity Center***|
+
+## Workshop Opportunities
 
 ```
 1. First item
