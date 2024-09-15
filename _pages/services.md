@@ -1,16 +1,35 @@
 ---
-title: "Training Resources"
+title: "AWS Services for HCLS"
 tags:
-    - training
-date: "2024-09-13"
-thumbnail: "https://i.ibb.co/xj20N3N/card.webp"
+    - services
+date: "2024-09-14"
+thumbnail: "https://i.ibb.co/V9j2Qsg/giscus-Wl0-X3byd-az-U68-1.webp"
 bookmark: true
 ---
 
-[![AWS Certified Machine Learning Engineer Associate](https://d1.awsstatic.com/certification/badges/AWS-Certified-Machine-Learning-Engineer-Associate_badge_150x150.5b20006dbf23c59ce652afbf3bd943cc3a013159.png){:class="img-md"}](https://aws.amazon.com/certification/certified-machine-learning-engineer-associate/)
-
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+
+**AWS** offers the following services for HCLS.
+
+# Category
+---
+
+## Service Name
+
+`HealthLake
+
+![Discussion](https://i.ibb.co/P1FV02D/giscus-00.png)
+
+![](https://i.ibb.co/Z154x8P/giscus-04.png)
+
+```
+# External API
+giscus_repo: rpathangi/rpathangi.github.io
+giscus_repoId: R_kgDOMw51CA
+giscus_category: General
+giscus_categoryId: DIC_kwDOMw51CM4Cidfb
+```
 
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"

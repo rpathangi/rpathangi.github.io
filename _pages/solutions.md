@@ -6,7 +6,8 @@ date: "2024-09-24"
 thumbnail: "/assets/img/thumbnail/sample.png"
 bookmark: true
 ---
-
+<script data-goatcounter="https://rpathangi.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 This section details top 10 use cases in Life Sciences.
 
 # Use Case: 01
