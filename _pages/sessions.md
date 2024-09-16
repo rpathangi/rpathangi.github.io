@@ -9,7 +9,7 @@ bookmark: true
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 [AWS Events](https://aws.amazon.com/events/explore-aws-events)
-[AWS Certifications](https://aws.amazon.com/certification/)
+[AWS Skill Builder](https://explore.skillbuilder.aws/learn)
 
 
 <script src="https://giscus.app/client.js"
