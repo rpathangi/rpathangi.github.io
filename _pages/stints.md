@@ -5,6 +5,7 @@ tags:
     - workshops
     - prototypes
 date: "2023-09-15"
+thumbnail: "/assets/img/thumbnail/dna.jpeg"
 bookmark: true
 ---
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
