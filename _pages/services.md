@@ -10,14 +10,13 @@ bookmark: true
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
-**AWS** offers the following services for HCLS.
-
-# Category
+### AWS HealthLake
 ---
+[https://aws.amazon.com/healthlake/](https://aws.amazon.com/healthlake/)
 
-## Service Name
-
-`HealthLake`
+### Amazon Comprehend Medical
+---
+[https://aws.amazon.com/comprehend/medical/](https://aws.amazon.com/comprehend/medical/)
 
 ![Discussion](https://i.ibb.co/P1FV02D/giscus-00.png)
 
