@@ -13,39 +13,25 @@ bookmark: true
 
 ## Blog Opportunities
 ---
-
-|Use Case|Details|
-|---|---|
-|*Security*|Write a blog on how to migrate users from ***3rd party identity providers*** integrated with SSO to ***Identity Center***|
+```
+1. Migrate 3rd Party Providers from SSO to Identity Center.
+2. Trigger emails based on alerts matching patterns with in Security Lake.
+```
 
 ## Workshop Opportunities
-
+---
 ```
-1. First item
-2. Second item
-* Third item
-- Fourth item
-```
-`Fifth item`
-
-```xml
-<html>
-  <head>Sixth Item
-  </head>
-</html>
+1. Draft response to a `support query`.
 ```
 
-```python
-def foo():
-  a = 1
-  for i in [1,2,3]:
-    a += i
-```
 
-`---`
+|Header 1|Header 2|
+|---|---|
+|*<https://www.google.com/>*| ***<support@google.com>***|
+
+## Career Opportunities
+---
 [Blue Archive](https://bluearchive.nexon.com).
-<https://www.youtube.com/>
-<fake@example.com>
 [![La Mancha](/assets/img/La-Mancha.jpg "La Mancha: Spain, Don Quixote")](https://www.britannica.com/place/La-Mancha)
 
 <script src="https://giscus.app/client.js"
