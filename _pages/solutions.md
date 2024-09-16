@@ -10,14 +10,14 @@ bookmark: true
         async src="//gc.zgo.at/count.js"></script>
 This section details top 10 use cases in Life Sciences.
 
-# Use Case: 01
+### Use Case: Drug Discovery Workbench
 ---
-Drug Discovery.
+WIP
 
-```
-$ mkdir _pages
-$ cd _pages
-```
+### Use Case: Clinical Trial Control Tower
+---
+WIP
+
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"
         data-repo-id="R_kgDOMw51CA"
