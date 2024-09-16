@@ -17,12 +17,12 @@ bookmark: true
 ---
 `Clinical Development And Access`
 
-### Commercial And Medical Affairs: Population Health Management
+### Commercial And Medical Affairs
 ---
 `Quality Management`
 `Content Creation Personalization & Adaptation`
 
-### Corporate Functions And Collaboration: Real World Data
+### Corporate Functions And Collaboration
 ---
 `Review Process`
 
