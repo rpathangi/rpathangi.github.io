@@ -20,14 +20,10 @@ bookmark: true
 
 ## Workshop Opportunities
 ---
-```
-1. Draft response to a `support query`.
-```
 
-
-|Header 1|Header 2|
+|Opportunity|Services|
 |---|---|
-|*<https://www.google.com/>*| ***<support@google.com>***|
+|*Draft a response using Gen AI to the customer query.*| `Amazon SageMaker`,`Amazon Bedrock`|
 
 ## Career Opportunities
 ---
