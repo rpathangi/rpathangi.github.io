@@ -27,8 +27,8 @@ bookmark: true
 
 ## Career Opportunities
 ---
-[Blue Archive](https://bluearchive.nexon.com).
-[![La Mancha](/assets/img/La-Mancha.jpg "La Mancha: Spain, Don Quixote")](https://www.britannica.com/place/La-Mancha)
+
+[![Careers at AWS](https://www.amazon.jobs/content/_next/image?url=https%3A%2F%2Fcdn.cms.amazon.jobs%2F98%2F06%2F44d7e76d4722894691cbe5e07b04%2Faws-eb-jobbanners-2744x656-aws.jpg&w=3840&q=100 "Open positions at AWS")](https://www.amazon.jobs/en/search)
 
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"

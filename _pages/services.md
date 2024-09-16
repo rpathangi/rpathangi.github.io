@@ -18,10 +18,6 @@ bookmark: true
 ---
 [https://aws.amazon.com/comprehend/medical/](https://aws.amazon.com/comprehend/medical/)
 
-![Discussion](https://i.ibb.co/P1FV02D/giscus-00.png)
-
-![](https://i.ibb.co/Z154x8P/giscus-04.png)
-
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"
         data-repo-id="R_kgDOMw51CA"
