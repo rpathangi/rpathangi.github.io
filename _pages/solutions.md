@@ -9,13 +9,22 @@ bookmark: true
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
-### Use Case: Drug Discovery Workbench
+### Research & Development
 ---
-WIP
+`Drug Design`
 
-### Use Case: Clinical Trial Control Tower
+### Operations
 ---
-WIP
+`Clinical Development And Access`
+
+### Commercial And Medical Affairs: Population Health Management
+---
+`Quality Management`
+`Content Creation Personalization & Adaptation`
+
+### Corporate Functions And Collaboration: Real World Data
+---
+`Review Process`
 
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"
