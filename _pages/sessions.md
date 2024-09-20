@@ -8,8 +8,12 @@ bookmark: true
 ---
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
-[AWS Events](https://aws.amazon.com/events/explore-aws-events)
-[AWS Skill Builder](https://explore.skillbuilder.aws/learn)
+[https://aws.amazon.com/events/explore-aws-events](https://aws.amazon.com/events/explore-aws-events)
+[https://aws.amazon.com/developer/events/](https://aws.amazon.com/developer/events/)
+[https://explore.skillbuilder.aws/learn](https://explore.skillbuilder.aws/learn)
+[https://aws.amazon.com/training/](https://aws.amazon.com/training/)
+[https://aws.amazon.com/training/events/](https://aws.amazon.com/training/events/)
+[https://aws.amazon.com/events/events-content/](https://aws.amazon.com/events/events-content/)
 
 
 <script src="https://giscus.app/client.js"

@@ -18,6 +18,18 @@ bookmark: true
 ---
 [https://aws.amazon.com/comprehend/medical/](https://aws.amazon.com/comprehend/medical/)
 
+### AWS HealthScribe
+---
+[https://aws.amazon.com/healthscribe/](https://aws.amazon.com/healthscribe/)
+
+### AWS HealthImaging
+---
+[https://aws.amazon.com/healthimaging/](https://aws.amazon.com/healthimaging/)
+
+### AWS HealthOmics
+---
+[https://aws.amazon.com/healthomics/](https://aws.amazon.com/healthomics/)
+
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"
         data-repo-id="R_kgDOMw51CA"

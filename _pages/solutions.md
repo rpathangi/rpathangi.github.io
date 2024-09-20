@@ -9,22 +9,14 @@ bookmark: true
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
-### Research & Development
+### Open source at AWS
 ---
+[https://aws.amazon.com/opensource/](https://aws.amazon.com/opensource/)
+[https://aws.amazon.com/architecture/well-architected/](https://aws.amazon.com/architecture/well-architected/)
+[https://aws.amazon.com/solutions/](https://aws.amazon.com/solutions/)
+[https://repost.aws/](https://repost.aws/)
+
 `Drug Design`
-
-### Operations
----
-`Clinical Development And Access`
-
-### Commercial And Medical Affairs
----
-`Quality Management`
-`Content Creation Personalization & Adaptation`
-
-### Corporate Functions And Collaboration
----
-`Review Process`
 
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"
