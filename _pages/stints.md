@@ -14,7 +14,7 @@ bookmark: true
 ## Career Opportunities
 ---
 
-[![Careers at AWS](/assets/img/aws.jpeg "Open positions at AWS")](https://www.amazon.jobs/en/search)
+[![Careers at AWS]("Open positions at AWS")](https://www.amazon.jobs/en/search)
 
 <script src="https://giscus.app/client.js"
         data-repo="rpathangi/rpathangi.github.io"
