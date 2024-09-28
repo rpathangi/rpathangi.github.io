@@ -10,24 +10,12 @@ bookmark: true
 <script data-goatcounter="https://rpathangi.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
-### AWS HealthLake
+### AWS Services
 ---
 [https://aws.amazon.com/healthlake/](https://aws.amazon.com/healthlake/)
-
-### Amazon Comprehend Medical
----
 [https://aws.amazon.com/comprehend/medical/](https://aws.amazon.com/comprehend/medical/)
-
-### AWS HealthScribe
----
 [https://aws.amazon.com/healthscribe/](https://aws.amazon.com/healthscribe/)
-
-### AWS HealthImaging
----
 [https://aws.amazon.com/healthimaging/](https://aws.amazon.com/healthimaging/)
-
-### AWS HealthOmics
----
 [https://aws.amazon.com/healthomics/](https://aws.amazon.com/healthomics/)
 
 <script src="https://giscus.app/client.js"
