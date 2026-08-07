@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="AWS services and hands-on workshops for designing, building, and operating cloud systems.">
+  <title>AWS Services &amp; Workshops | Field Guides</title>
+  <style>
+    :root { --ink: #111111; --paper: #f7f7f5; --white: #ffffff; --orange: #ff9900; --orange-bright: #ffb84d; --orange-pale: #fff0d5; --muted: #686d69; --line: #e3e4df; --font-sans: "Amazon Ember", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    .shell { width: min(calc(100% - 40px), 1180px); margin: 0 auto; }
+    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,.12); background: rgba(17,17,17,.95); backdrop-filter: blur(16px); }
+    .topbar-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 70px; }
+    .nav { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a { padding: 9px 12px; color: #c8cbc8; border-radius: 999px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: color .2s ease, background .2s ease; }
+    .nav a:hover, .nav a:focus-visible, .nav a[aria-current="page"] { color: var(--ink); background: var(--orange); outline: none; }
+    .hero { position: relative; overflow: hidden; color: var(--white); background: radial-gradient(circle at 85% 10%, rgba(255,153,0,.3), transparent 26%), radial-gradient(circle at 10% 100%, rgba(255,153,0,.14), transparent 30%), var(--ink); }
+    .hero::after { position: absolute; right: -180px; bottom: -320px; width: 650px; height: 650px; border: 1px solid rgba(255,153,0,.27); border-radius: 50%; box-shadow: 0 0 0 48px rgba(255,153,0,.04), 0 0 0 96px rgba(255,153,0,.025); content: ""; }
+    .hero-inner { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(350px, .95fr); align-items: center; gap: 70px; padding: 105px 0 115px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 20px; color: var(--orange-bright); font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { width: 28px; height: 2px; background: var(--orange); content: ""; }
+    h1 { max-width: 700px; margin: 0 0 22px; font-size: clamp(48px, 7vw, 88px); font-weight: 800; letter-spacing: -.06em; line-height: .95; }
+    .hero-copy { max-width: 570px; margin: 0; color: #c4c8c4; font-size: 18px; line-height: 1.55; }
+    .hero-copy strong { color: var(--white); }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .button { display: inline-flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 18px; border-radius: 999px; font-size: 13px; font-weight: 800; text-decoration: none; transition: transform .2s ease, background .2s ease; }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary { color: var(--ink); background: var(--orange); }
+    .button-primary:hover { background: var(--orange-bright); }
+    .button-quiet { color: var(--white); border: 1px solid rgba(255,255,255,.25); }
+    .button-quiet:hover { color: var(--orange-bright); border-color: var(--orange); }
+    .hero-panel { padding: 28px; border: 1px solid rgba(255,255,255,.15); border-radius: 24px; background: linear-gradient(145deg, rgba(255,255,255,.1), rgba(255,255,255,.025)); box-shadow: 0 24px 80px rgba(0,0,0,.24); }
+    .panel-label { display: flex; justify-content: space-between; color: #a2a6a2; font-size: 10px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .panel-label span:last-child { color: var(--orange-bright); }
+    .roadmap { position: relative; display: grid; gap: 12px; margin: 36px 0 30px; }
+    .roadmap::before { position: absolute; top: 22px; bottom: 22px; left: 16px; width: 1px; background: rgba(255,153,0,.45); content: ""; }
+    .roadmap-step { position: relative; display: grid; grid-template-columns: 33px 1fr; align-items: center; gap: 12px; }
+    .roadmap-dot { z-index: 1; display: grid; place-items: center; width: 33px; height: 33px; color: var(--ink); background: var(--orange); border-radius: 50%; font-size: 11px; font-weight: 900; }
+    .roadmap-copy strong { display: block; color: var(--white); font-size: 14px; }
+    .roadmap-copy span { display: block; margin-top: 3px; color: #999e99; font-size: 11px; }
+    .panel-foot { margin: 0; padding-top: 18px; border-top: 1px solid rgba(255,255,255,.12); color: #9da29d; font-size: 11px; line-height: 1.5; }
+    .main { padding: 78px 0 100px; }
+    .intro { display: flex; align-items: end; justify-content: space-between; gap: 32px; margin-bottom: 30px; }
+    .intro h2 { margin: 0; font-size: clamp(32px, 4vw, 52px); letter-spacing: -.05em; line-height: 1; }
+    .intro p { max-width: 500px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+    .guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .guide-card { position: relative; display: flex; flex-direction: column; min-height: 360px; overflow: hidden; padding: 30px; border: 1px solid var(--line); border-radius: 22px; background: var(--white); box-shadow: 0 18px 38px rgba(17,17,17,.05); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+    .guide-card:hover { border-color: #f1c274; box-shadow: 0 22px 42px rgba(17,17,17,.1); transform: translateY(-4px); }
+    .guide-card.services { background: linear-gradient(135deg, var(--white) 62%, var(--orange-pale)); }
+    .guide-card.workshops { color: var(--white); background: var(--ink); }
+    .guide-card.challenges { background: linear-gradient(135deg, var(--white) 62%, #eef0ea); }
+    .guide-kicker { display: block; margin-bottom: 48px; color: #a76500; font-size: 10px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+    .workshops .guide-kicker { color: var(--orange-bright); }
+    .guide-card h3 { max-width: 420px; margin: 0 0 13px; font-size: clamp(28px, 4vw, 43px); letter-spacing: -.05em; line-height: 1.02; }
+    .guide-card p { max-width: 450px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .workshops p { color: #b4b8b4; }
+    .guide-link { display: inline-flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 28px; font-size: 13px; font-weight: 900; text-decoration: none; }
+    .guide-link span { display: grid; place-items: center; width: 29px; height: 29px; color: var(--ink); background: var(--orange); border-radius: 50%; transition: transform .2s ease; }
+    .guide-link:hover span { transform: translateX(4px); }
+    .footer { padding: 28px 0 34px; color: #b4b8b4; background: var(--ink); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .footer p { margin: 0; font-size: 11px; }
+    .footer a { color: var(--orange-bright); font-weight: 700; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    @media (max-width: 900px) { .hero-inner { grid-template-columns: 1fr; gap: 45px; } .hero-panel { max-width: 640px; } .guide-grid { grid-template-columns: 1fr; } .guide-card { min-height: 300px; } }
+    @media (max-width: 600px) { .shell { width: min(calc(100% - 28px), 1180px); } .topbar-inner { min-height: 62px; align-items: flex-start; padding: 14px 0; } .nav { margin-top: -2px; } .nav a { padding: 7px 9px; font-size: 10px; } .hero-inner { padding: 72px 0 80px; } .hero-copy { font-size: 16px; } .hero-panel { padding: 21px; } .main { padding: 60px 0 75px; } .intro { display: block; } .intro h2 { margin-bottom: 18px; } .guide-card { padding: 25px; } .guide-kicker { margin-bottom: 35px; } .footer-inner { display: block; } .footer p + p { margin-top: 10px; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <nav class="nav" aria-label="Page navigation">
+        <a href="index.html" aria-current="page">Home</a>
+        <a href="Services/index.html">Services</a>
+        <a href="Workshops/index.html">Workshops</a>
+        <a href="Challenges/index.html">Challenges</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="main" id="guides">
+      <div class="shell">
+        <div class="guide-grid">
+          <article class="guide-card services"><span class="guide-kicker">01 / Services</span><h3>AWS services for real-world systems.</h3><p>Explore AWS services and patterns across architecture, delivery, and operations as the library grows with new guidance and capabilities.</p><a class="guide-link" href="Services/index.html">Open services guide <span aria-hidden="true">→</span></a></article>
+          <article class="guide-card workshops"><span class="guide-kicker">02 / Workshops</span><h3>Workshops for real-world AWS work.</h3><p>Explore hands-on workshops for architecture, delivery, operations, and more as new sessions are added.</p><a class="guide-link" href="Workshops/index.html">Explore workshops <span aria-hidden="true">→</span></a></article>
+          <article class="guide-card challenges"><span class="guide-kicker">03 / Challenges</span><h3>Challenges to sharpen AWS skills.</h3><p>Work through focused, real-world tasks that build and verify practical cloud skills as new challenges are added.</p><a class="guide-link" href="Challenges/index.html">Explore challenges <span aria-hidden="true">→</span></a></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="shell footer-inner"><p>AWS services, workshops, and challenges field guides</p><p><a href="Services/index.html">Services</a> <span aria-hidden="true">·</span> <a href="Workshops/index.html">Workshops</a> <span aria-hidden="true">·</span> <a href="Challenges/index.html">Challenges</a></p></div></footer>
+</body>
+</html>

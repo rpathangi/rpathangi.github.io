@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="Hands-on AWS workshops — guided, end-to-end builds for architecture, delivery, and operations.">
+  <title>Workshops | AWS Field Guides</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --ink: #111111;
+      --paper: #f7f7f5;
+      --white: #ffffff;
+      --orange: #ff9900;
+      --orange-bright: #ffb84d;
+      --orange-pale: #fff0d5;
+      --muted: #686d69;
+      --muted-dark: #5e625f;
+      --line: #e3e4df;
+      --line-light: #e5e5e0;
+      --radius-lg: 24px;
+      --font-sans: "Amazon Ember", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    .shell { width: min(calc(100% - 40px), 1180px); margin: 0 auto; }
+    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,.12); background: rgba(17,17,17,.95); backdrop-filter: blur(16px); }
+    .topbar-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 70px; }
+    .nav { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a { padding: 9px 12px; color: #c8cbc8; border-radius: 999px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: color .2s ease, background .2s ease; }
+    .nav a:hover, .nav a:focus-visible, .nav a[aria-current="page"] { color: var(--ink); background: var(--orange); outline: none; }
+
+    .page-head { padding: 70px 0 12px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 18px; color: #b26a00; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { width: 28px; height: 2px; background: var(--orange); content: ""; }
+    .page-head h1 { margin: 0 0 16px; font-size: clamp(38px, 6vw, 66px); font-weight: 800; letter-spacing: -.05em; line-height: 1; }
+    .page-head p { max-width: 620px; margin: 0; color: var(--muted); font-size: 16px; line-height: 1.55; }
+
+    .catalog { padding: 40px 0 100px; }
+    .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+    .catalog-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 28px 26px;
+      color: inherit;
+      text-decoration: none;
+      background: var(--white);
+      border: 1px solid var(--line-light);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 14px 30px rgba(17,17,17,.05);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .catalog-card::before {
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--orange), var(--orange-bright));
+      opacity: 0; transition: opacity .2s ease; content: "";
+    }
+    .catalog-card:hover, .catalog-card:focus-visible { transform: translateY(-4px); border-color: #f3c477; box-shadow: 0 22px 44px rgba(17,17,17,.1); outline: none; }
+    .catalog-card:hover::before, .catalog-card:focus-visible::before { opacity: 1; }
+    .cc-icon { display: grid; place-items: center; width: 50px; height: 50px; margin-bottom: 20px; color: var(--ink); background: radial-gradient(circle at 32% 28%, var(--orange-bright), var(--orange)); border-radius: 14px; font-size: 20px; box-shadow: 0 10px 22px rgba(255,153,0,.28); }
+    .cc-kicker { display: block; margin-bottom: 7px; color: var(--orange); font-size: 10px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; }
+    .cc-title { margin: 0 0 10px; font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; }
+    .cc-desc { margin: 0 0 18px; color: var(--muted-dark); font-size: 13.5px; line-height: 1.55; }
+    .cc-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+    .cc-tag { padding: 4px 10px; color: #7a5200; background: var(--orange-pale); border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .03em; }
+    .cc-go { display: inline-flex; align-items: center; gap: 8px; margin-top: auto; color: #b26a00; font-size: 13px; font-weight: 800; }
+    .cc-go i { transition: transform .2s ease; }
+    .catalog-card:hover .cc-go i { transform: translateX(4px); }
+
+    .footer { padding: 28px 0 34px; color: #b4b8b4; background: var(--ink); }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .footer p { margin: 0; font-size: 11px; }
+    .footer a { color: var(--orange-bright); font-weight: 700; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .shell { width: min(calc(100% - 28px), 1180px); }
+      .topbar-inner { min-height: 62px; align-items: flex-start; padding: 14px 0; }
+      .nav { margin-top: -2px; }
+      .nav a { padding: 7px 9px; font-size: 10px; }
+      .page-head { padding: 46px 0 8px; }
+      .catalog { padding: 30px 0 70px; }
+      .catalog-grid { grid-template-columns: 1fr; }
+      .footer-inner { display: block; }
+      .footer p + p { margin-top: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <nav class="nav" aria-label="Page navigation">
+        <a href="../index.html">Home</a>
+        <a href="../Services/index.html">Services</a>
+        <a href="index.html" aria-current="page">Workshops</a>
+        <a href="../Challenges/index.html">Challenges</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-head">
+      <div class="shell">
+        <span class="eyebrow">Hands-on</span>
+        <h1>Workshops</h1>
+        <p>Guided, end-to-end builds for architecture, delivery, and operations on AWS. Pick a workshop and build alongside it.</p>
+      </div>
+    </section>
+
+    <section class="catalog">
+      <div class="shell">
+        <div class="catalog-grid">
+          <!-- Add a new workshop by copying one catalog-card block. -->
+          <a class="catalog-card" href="bedrock-open-ai.html">
+            <span class="cc-icon"><i class="fa-solid fa-robot"></i></span>
+            <span class="cc-kicker">Generative AI</span>
+            <h3 class="cc-title">Bedrock OpenAI Agent</h3>
+            <p class="cc-desc">Build a Lab Manual Q&amp;A agent using AI-DLC, Kiro, and OpenAI open-weight models on Amazon Bedrock with the Strands Agents SDK.</p>
+            <span class="cc-meta"><span class="cc-tag">Bedrock</span><span class="cc-tag">Strands</span><span class="cc-tag">AI-DLC</span></span>
+            <span class="cc-go">Open the workshop <i class="fa-solid fa-arrow-right"></i></span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="shell footer-inner"><p>AWS services and workshop field guides</p><p><a href="../index.html">Back to home</a></p></div></footer>
+</body>
+</html>

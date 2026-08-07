@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="Hands-on workshop: build a Lab Manual Q&A agent with the Strands Agents SDK and OpenAI gpt-oss-120b on Amazon Bedrock.">
+  <title>Bedrock OpenAI Agent Workshop | AWS</title>
+  <style>
+    :root {
+      --ink: #111111;
+      --paper: #f7f7f5;
+      --white: #ffffff;
+      --orange: #ff9900;
+      --orange-bright: #ffb84d;
+      --orange-pale: #fff0d5;
+      --muted: #686d69;
+      --line: #e3e4df;
+      --code-bg: #1b1c1b;
+      --code-ink: #eef0ee;
+      --font-sans: "Amazon Ember", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    .shell { width: min(calc(100% - 40px), 1180px); margin: 0 auto; }
+    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,.12); background: rgba(17,17,17,.95); backdrop-filter: blur(16px); }
+    .topbar-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 70px; }
+    .nav { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a { padding: 9px 12px; color: #c8cbc8; border-radius: 999px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: color .2s ease, background .2s ease; }
+    .nav a:hover, .nav a:focus-visible, .nav a[aria-current="page"] { color: var(--ink); background: var(--orange); outline: none; }
+
+    .main { padding: 62px 0 100px; }
+
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 14px;
+      font-family: var(--font-sans);
+    }
+    .section-divider::after {
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+      content: "";
+    }
+    .section-divider h1 {
+      flex-shrink: 0;
+      margin: 0;
+      padding: 10px 16px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--white);
+      font-family: var(--font-sans);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -.025em;
+      line-height: 1;
+    }
+    .lede { max-width: 720px; margin: 0 0 12px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+    .lede code { padding: 1px 6px; background: var(--orange-pale); border-radius: 5px; font-family: var(--font-mono); font-size: 13px; }
+
+    .intro-block { max-width: 720px; margin: 0 0 8px; }
+    .intro-lead { margin: 0 0 6px; color: var(--ink); font-size: 17px; font-weight: 700; line-height: 1.5; letter-spacing: -.01em; }
+    .intro-block h2 { margin: 26px 0 8px; font-size: 15px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; color: var(--orange); }
+    .intro-block p { margin: 0 0 12px; color: #33352f; font-size: 14px; line-height: 1.65; }
+    .intro-block ol { margin: 0 0 12px; padding-left: 22px; color: #33352f; font-size: 14px; line-height: 1.7; }
+    .intro-block ol li { margin-bottom: 5px; }
+    .intro-note { margin: 24px 0 0; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+
+    .step { padding-top: 46px; }
+    .step-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .step-num { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; color: var(--ink); background: var(--orange); border-radius: 8px; font-size: 15px; font-weight: 900; }
+    .step-head h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.03em; }
+    .substep-head { display: flex; align-items: baseline; gap: 10px; margin: 34px 0 14px; }
+    .substep-num { flex-shrink: 0; color: var(--orange); font-size: 13px; font-weight: 900; letter-spacing: .04em; }
+    .substep-head h3 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+
+    .step p { max-width: 720px; margin: 0 0 14px; color: #33352f; font-size: 14px; line-height: 1.65; }
+    .step p code, li code { padding: 1px 6px; background: #ecefe9; border: 1px solid var(--line); border-radius: 5px; font-family: var(--font-mono); font-size: 12.5px; }
+    .step ol, .step ul { max-width: 720px; margin: 0 0 14px; padding-left: 22px; color: #33352f; font-size: 14px; line-height: 1.7; }
+    .step ol li, .step ul li { margin-bottom: 6px; }
+
+    .btn-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; color: var(--ink); background: var(--orange); border-radius: 999px; font-size: 13px; font-weight: 800; text-decoration: none; transition: transform .2s ease, background .2s ease; }
+    .btn-link:hover { background: var(--orange-bright); transform: translateY(-2px); }
+
+    .code {
+      position: relative;
+      max-width: 720px;
+      margin: 0 0 16px;
+      overflow: hidden;
+      background: var(--code-bg);
+      border-radius: 12px;
+      box-shadow: 0 10px 26px rgba(17,17,17,.12);
+    }
+    .code-label { display: flex; align-items: center; gap: 8px; padding: 9px 16px; color: #9aa09a; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .code-label::before { width: 9px; height: 9px; background: var(--orange); border-radius: 50%; content: ""; }
+    .code pre { margin: 0; padding: 16px 18px; overflow-x: auto; color: var(--code-ink); font-family: var(--font-mono); font-size: 13px; line-height: 1.6; }
+    .code code { font-family: inherit; }
+    .prompt-block .code-label::before { background: var(--orange-bright); }
+
+    /* Tabbed OS command blocks */
+    .code-tabs { display: flex; gap: 4px; padding: 8px 10px 0; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); }
+    .code-tab { padding: 7px 14px; border: none; border-radius: 8px 8px 0 0; background: transparent; color: #9aa09a; font-family: var(--font-sans); font-size: 11.5px; font-weight: 700; letter-spacing: .02em; cursor: pointer; transition: color .2s ease, background .2s ease; }
+    .code-tab:hover { color: var(--code-ink); }
+    .code-tab.is-active { color: var(--ink); background: var(--orange); }
+    .code-tab:focus-visible { outline: 2px solid var(--orange-bright); outline-offset: 2px; }
+    .code-pane[hidden] { display: none; }
+
+    .table-wrap { max-width: 720px; margin: 0 0 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; background: var(--white); font-size: 13.5px; }
+    th, td { padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--line); }
+    th { background: #f0f1ec; font-weight: 800; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    tr:last-child td { border-bottom: none; }
+    td code { padding: 1px 6px; background: #ecefe9; border-radius: 5px; font-family: var(--font-mono); font-size: 12.5px; }
+    .td-muted { color: var(--muted); font-style: italic; }
+
+    .callout { max-width: 720px; margin: 0 0 16px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: 10px; background: var(--white); }
+    .callout-title { margin: 0 0 8px; font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+    .callout p { margin: 0; font-size: 13.5px; line-height: 1.6; }
+    .callout ul { margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.65; }
+    .callout ul li { margin-bottom: 6px; }
+    .callout.security { border-left-color: var(--orange); }
+    .callout.security .callout-title { color: #a76500; }
+    .callout.warn { border-left-color: #d64545; }
+    .callout.warn .callout-title { color: #b53434; }
+    .callout.note { border-left-color: #6f7570; }
+    .callout.note .callout-title { color: var(--muted); }
+
+    .divider-rule { max-width: 720px; height: 1px; margin: 40px 0 0; background: var(--line); }
+
+    .footer { padding: 28px 0 34px; color: #b4b8b4; background: var(--ink); margin-top: 70px; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .footer p { margin: 0; font-size: 11px; }
+    .footer a { color: var(--orange-bright); font-weight: 700; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .shell { width: min(calc(100% - 28px), 1180px); }
+      .topbar-inner { min-height: 62px; align-items: flex-start; padding: 14px 0; }
+      .nav { margin-top: -2px; }
+      .nav a { padding: 7px 9px; font-size: 10px; }
+      .main { padding: 48px 0 75px; }
+      .section-divider { display: grid; gap: 12px; }
+      .section-divider::after { width: 100%; }
+      .footer-inner { display: block; }
+      .footer p + p { margin-top: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <nav class="nav" aria-label="Page navigation">
+        <a href="../index.html">Home</a>
+        <a href="../Services/index.html">Services</a>
+        <a href="index.html" aria-current="page">Workshops</a>
+        <a href="../Challenges/index.html">Challenges</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="shell">
+      <div class="section-divider">
+        <h1>Bedrock OpenAI Agent</h1>
+      </div>
+      <div class="intro-block">
+        <p class="intro-lead">Build a <strong>Lab Manual Q&amp;A agent</strong> using AI-DLC, Kiro, and OpenAI open-weight models on Amazon Bedrock.</p>
+
+        <h2>The Problem</h2>
+        <p>Lab scientists spend significant time searching instrument manuals, SOPs, and protocol documents for specific procedures, troubleshooting steps, or safety information. An AI agent that answers these questions instantly — grounded in actual documentation — saves hours per week.</p>
+
+        <h2>The Approach</h2>
+        <p>You'll use <strong>AI-DLC</strong> (AI-Driven Development Life Cycle) inside <strong>Kiro</strong> to build this agent through a structured workflow:</p>
+        <ol>
+          <li>Describe what you want in plain English.</li>
+          <li>AI-DLC asks clarifying questions and produces a design.</li>
+          <li>You approve → AI-DLC generates the code.</li>
+          <li>You review, test, and iterate.</li>
+        </ol>
+        <p>The reasoning engine behind the agent is <strong>OpenAI gpt-oss-120b</strong> running on <strong>Amazon Bedrock</strong>.</p>
+
+        <p class="intro-note">Follow the steps in order — each one builds on the previous. Every command below has a <strong>macOS / Linux</strong> and a <strong>Windows (PowerShell)</strong> tab; pick the one for your machine.</p>
+      </div>
+
+      <!-- Step 1 -->
+      <section class="step" id="step-1">
+        <div class="step-head"><span class="step-num">1</span><h2>Download Kiro IDE</h2></div>
+        <p>Download and install Kiro IDE for your operating system (macOS, Windows, or Linux), then open it.</p>
+        <p><a class="btn-link" href="https://kiro.dev/downloads/" target="_blank" rel="noreferrer">Download Kiro IDE <span aria-hidden="true">→</span></a></p>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="step" id="step-2">
+        <div class="step-head"><span class="step-num">2</span><h2>Sign In to Kiro</h2></div>
+        <p>Open Kiro and choose an authentication method. Any of the following works for this workshop — see the <a href="https://kiro.dev/docs/getting-started/authentication/" target="_blank" rel="noreferrer">Kiro authentication guide</a> for details.</p>
+        <ul>
+          <li><strong>Google</strong> — sign in with a <a href="https://www.gmail.com/" target="_blank" rel="noreferrer">Google account</a>.</li>
+          <li><strong>GitHub</strong> — sign in with a <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub account</a>.</li>
+          <li><strong>AWS Builder ID</strong> — sign in with an <a href="https://builder.aws.com/" target="_blank" rel="noreferrer">AWS Builder ID</a>.</li>
+        </ul>
+        <p><a class="btn-link" href="https://kiro.dev/docs/getting-started/authentication/" target="_blank" rel="noreferrer">Authentication options <span aria-hidden="true">→</span></a></p>
+      </section>
+
+      <!-- Step 3 -->
+      <section class="step" id="step-3">
+        <div class="step-head"><span class="step-num">3</span><h2>Create the Project</h2></div>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>mkdir ~/lab-manual-agent
+cd ~/lab-manual-agent</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>mkdir $HOME\lab-manual-agent
+cd $HOME\lab-manual-agent</code></pre>
+        </div>
+      </section>
+
+      <!-- Step 4 -->
+      <section class="step" id="step-4">
+        <div class="step-head"><span class="step-num">4</span><h2>Configure AWS Credentials</h2></div>
+        <p>Run the following command and paste in the credentials shown on the Workshop Studio <strong>Get AWS CLI credentials</strong> page:</p>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>aws configure --profile workshop</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>aws configure --profile workshop</code></pre>
+        </div>
+        <p>When prompted, enter:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Prompt</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>AWS Access Key ID</td><td class="td-muted">from Workshop Studio</td></tr>
+              <tr><td>AWS Secret Access Key</td><td class="td-muted">from Workshop Studio</td></tr>
+              <tr><td>AWS Session Token</td><td class="td-muted">from Workshop Studio</td></tr>
+              <tr><td>Default region name</td><td class="td-muted">from Workshop Studio</td></tr>
+              <tr><td>Default output format</td><td><code>json</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Activate the profile (use the Region shown in Workshop Studio):</p>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>export AWS_PROFILE=workshop
+export AWS_REGION=&lt;REGION_FROM_WORKSHOP_STUDIO&gt;</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>$env:AWS_PROFILE = "workshop"
+$env:AWS_REGION = "&lt;REGION_FROM_WORKSHOP_STUDIO&gt;"</code></pre>
+        </div>
+        <div class="callout note">
+          <p class="callout-title">Region</p>
+          <p>Use the AWS Region shown on the Workshop Studio credentials page. Replace <code>&lt;REGION_FROM_WORKSHOP_STUDIO&gt;</code> with that value (for this workshop it is typically <code>us-west-2</code>).</p>
+        </div>
+        <p>Verify it works:</p>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>aws sts get-caller-identity</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>aws sts get-caller-identity</code></pre>
+        </div>
+        <p>You should see the workshop account ID and role.</p>
+        <div class="callout security">
+          <p class="callout-title">Security</p>
+          <p>Do not commit or share credentials. They are temporary and expire when the workshop event ends.</p>
+        </div>
+      </section>
+
+      <!-- Step 5 -->
+      <section class="step" id="step-5">
+        <div class="step-head"><span class="step-num">5</span><h2>Verify Amazon Bedrock Access</h2></div>
+        <ol>
+          <li>Open the Amazon Bedrock console.</li>
+          <li>Set the region to <strong>US West (Oregon) / us-west-2</strong>.</li>
+          <li>Open <strong>Playgrounds → Chat</strong>.</li>
+          <li>Select <strong>OpenAI → gpt-oss-120b</strong>.</li>
+          <li>Submit a test question.</li>
+        </ol>
+        <p>For CLI verification:</p>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>aws sts get-caller-identity --profile workshop</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>aws sts get-caller-identity --profile workshop</code></pre>
+        </div>
+        <div class="callout warn">
+          <p class="callout-title">Common Errors</p>
+          <ul>
+            <li><strong>"You don't have access to this model"</strong> — Wait 30–60 seconds and confirm the workshop event is active.</li>
+            <li><strong>"Region not available"</strong> — Set the region to <code>us-west-2</code> in the console dropdown.</li>
+            <li><strong>InvalidClientTokenId</strong> — Recheck the access key, secret key, and session token in <code>~/.aws/credentials</code> (<code>%USERPROFILE%\.aws\credentials</code> on Windows).</li>
+            <li><strong>AccessDeniedException</strong> — The workshop profile may not have Bedrock permissions. Verify the event is still running.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Step 6 -->
+      <section class="step" id="step-6">
+        <div class="step-head"><span class="step-num">6</span><h2>Create the Python Environment</h2></div>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install strands-agents strands-agents-tools boto3</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install strands-agents strands-agents-tools boto3</code></pre>
+        </div>
+        <p>Verify:</p>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>python3 --version
+pip show strands-agents</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>python --version
+pip show strands-agents</code></pre>
+        </div>
+        <p>You should see Python 3.10 or newer and the Strands Agents package details.</p>
+        <div class="callout note">
+          <p class="callout-title">Troubleshooting</p>
+          <ul>
+            <li><strong>Python version below 3.10</strong> — Install Python 3.10+ from <a href="https://python.org" target="_blank" rel="noreferrer">python.org</a> before continuing.</li>
+            <li><strong>"No matching distribution"</strong> — Confirm your Python version: <code>python3 --version</code> (<code>python --version</code> on Windows).</li>
+            <li><strong>Permission errors</strong> — Ensure the virtual environment is activated (you should see <code>(.venv)</code> in your prompt).</li>
+            <li><strong>Windows: "running scripts is disabled"</strong> — Allow the activation script for the current session: <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned</code></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Step 7 -->
+      <section class="step" id="step-7">
+        <div class="step-head"><span class="step-num">7</span><h2>Install AI-DLC Rules</h2></div>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>curl -sL https://api.github.com/repos/awslabs/aidlc-workflows/releases/latest \
+  | grep -o '"browser_download_url": *"[^"]*"' \
+  | head -1 \
+  | cut -d'"' -f4 \
+  | xargs curl -sL -o /tmp/aidlc-rules.zip
+
+unzip -o /tmp/aidlc-rules.zip -d /tmp/aidlc-release
+
+mkdir -p .kiro/steering
+
+cp -R /tmp/aidlc-release/aidlc-rules/aws-aidlc-rules \
+  .kiro/steering/
+
+cp -R /tmp/aidlc-release/aidlc-rules/aws-aidlc-rule-details \
+  .kiro/
+
+rm -rf /tmp/aidlc-rules.zip /tmp/aidlc-release</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>$release = Invoke-RestMethod https://api.github.com/repos/awslabs/aidlc-workflows/releases/latest
+$asset = $release.assets[0].browser_download_url
+Invoke-WebRequest -Uri $asset -OutFile "$env:TEMP\aidlc-rules.zip"
+
+Expand-Archive -Path "$env:TEMP\aidlc-rules.zip" -DestinationPath "$env:TEMP\aidlc-release" -Force
+
+New-Item -ItemType Directory -Force -Path .kiro\steering | Out-Null
+
+Copy-Item -Recurse -Force "$env:TEMP\aidlc-release\aidlc-rules\aws-aidlc-rules" .kiro\steering\
+
+Copy-Item -Recurse -Force "$env:TEMP\aidlc-release\aidlc-rules\aws-aidlc-rule-details" .kiro\
+
+Remove-Item -Recurse -Force "$env:TEMP\aidlc-rules.zip", "$env:TEMP\aidlc-release"</code></pre>
+        </div>
+        <p>Verify that this file exists:</p>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>ls .kiro/steering/aws-aidlc-rules/core-workflow.md</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>Test-Path .kiro\steering\aws-aidlc-rules\core-workflow.md</code></pre>
+        </div>
+
+        <div class="substep-head"><span class="substep-num">7.1</span><h3>Start AI-DLC</h3></div>
+        <p>In Kiro's chat, paste this prompt:</p>
+        <div class="code prompt-block">
+          <div class="code-label">Kiro chat prompt</div>
+          <pre><code>Using AI-DLC, build a Lab Manual Q&amp;A agent using the Strands Agents SDK with OpenAI gpt-oss-120b on Amazon Bedrock (us-west-2).
+
+The agent should:
+- Answer questions about lab instrument operation and maintenance
+- Provide troubleshooting guidance for common instrument issues
+- Look up safety and handling procedures
+- Reference specific manual sections in responses
+- Use tools for each capability (manual lookup, troubleshooting, safety info)
+- Use mock manual data (simulating a centrifuge, spectrophotometer, and PCR thermocycler)
+- Run as a Python script for local testing
+
+Keep it simple — single file, no database, mock data is fine.</code></pre>
+        </div>
+
+        <div class="substep-head"><span class="substep-num">7.2</span><h3>Inception Phase</h3></div>
+        <p><strong>Approve the plan</strong> to move to Construction.</p>
+
+        <div class="substep-head"><span class="substep-num">7.3</span><h3>Construction Phase</h3></div>
+        <p><strong>Approve the plan</strong> to move to Operation.</p>
+
+        <div class="substep-head"><span class="substep-num">7.4</span><h3>Test the Agent</h3></div>
+        <p>Ensure your environment is ready:</p>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>source .venv/bin/activate
+export AWS_PROFILE=workshop
+export AWS_REGION=&lt;REGION_FROM_WORKSHOP_STUDIO&gt;</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>.\.venv\Scripts\Activate.ps1
+$env:AWS_PROFILE = "workshop"
+$env:AWS_REGION = "&lt;REGION_FROM_WORKSHOP_STUDIO&gt;"</code></pre>
+        </div>
+        <p>Run the generated script:</p>
+        <div class="code tabbed">
+          <div class="code-tabs" role="tablist" aria-label="Operating system">
+            <button type="button" class="code-tab is-active" role="tab" aria-selected="true" data-os="unix">macOS / Linux</button>
+            <button type="button" class="code-tab" role="tab" aria-selected="false" data-os="win">Windows (PowerShell)</button>
+          </div>
+          <pre class="code-pane" data-os="unix" role="tabpanel"><code>python agent.py</code></pre>
+          <pre class="code-pane" data-os="win" role="tabpanel" hidden><code>python agent.py</code></pre>
+        </div>
+        <div class="callout note">
+          <p class="callout-title">Filename May Vary</p>
+          <p>AI-DLC chooses the filename during construction. If your file is named differently (e.g., <code>lab_manual_agent.py</code>), use that name instead.</p>
+        </div>
+
+        <p>Try each of these test queries to verify the agent works correctly:</p>
+
+        <p><strong>Operation query:</strong></p>
+        <div class="code prompt-block">
+          <div class="code-label">Query</div>
+          <pre><code>How do I operate the centrifuge?</code></pre>
+        </div>
+
+        <p><strong>Troubleshooting query:</strong></p>
+        <div class="code prompt-block">
+          <div class="code-label">Query</div>
+          <pre><code>My spectrophotometer has baseline drift — what should I check?</code></pre>
+        </div>
+
+        <p><strong>Safety query:</strong></p>
+        <div class="code prompt-block">
+          <div class="code-label">Query</div>
+          <pre><code>What are the safety precautions for the PCR thermocycler?</code></pre>
+        </div>
+
+        <p><strong>Cross-instrument query:</strong></p>
+        <div class="code prompt-block">
+          <div class="code-label">Query</div>
+          <pre><code>What's the maintenance schedule for all three instruments?</code></pre>
+        </div>
+
+        <p><strong>Error code query:</strong></p>
+        <div class="code prompt-block">
+          <div class="code-label">Query</div>
+          <pre><code>I'm getting error E-04 on the centrifuge</code></pre>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="shell footer-inner"><p>AWS services and workshop field guides</p><p><a href="../index.html">Back to home</a> <span aria-hidden="true">·</span> <a href="../Services/security.html">View services</a></p></div></footer>
+
+  <script>
+    (function () {
+      var blocks = document.querySelectorAll(".code.tabbed");
+      blocks.forEach(function (block) {
+        var tabs = block.querySelectorAll(".code-tab");
+        var panes = block.querySelectorAll(".code-pane");
+        tabs.forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            var os = tab.getAttribute("data-os");
+            tabs.forEach(function (t) {
+              var active = t === tab;
+              t.classList.toggle("is-active", active);
+              t.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            panes.forEach(function (pane) {
+              pane.hidden = pane.getAttribute("data-os") !== os;
+            });
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
