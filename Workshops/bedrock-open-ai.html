@@ -33,7 +33,16 @@
     .nav a { padding: 9px 12px; color: #c8cbc8; border-radius: 999px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: color .2s ease, background .2s ease; }
     .nav a:hover, .nav a:focus-visible, .nav a[aria-current="page"] { color: var(--ink); background: var(--orange); outline: none; }
 
-    .main { padding: 62px 0 100px; }
+    .main { padding: 58px 0 100px; }
+
+    .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--ink); }
+    .crumb-sep { color: var(--muted); opacity: .6; }
+    .doc-head { max-width: 760px; margin-bottom: 12px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 16px; color: #b26a00; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { width: 26px; height: 2px; background: var(--orange); content: ""; }
+    .doc-head h1 { margin: 0 0 16px; font-size: clamp(34px, 5vw, 52px); font-weight: 800; letter-spacing: -.04em; line-height: 1.02; }
 
     .section-divider {
       display: flex;
@@ -72,10 +81,10 @@
     .intro-block ol li { margin-bottom: 5px; }
     .intro-note { margin: 24px 0 0; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
 
-    .step { padding-top: 46px; }
+    .step { padding-top: 40px; }
     .step-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-    .step-num { display: grid; place-items: center; flex-shrink: 0; width: 34px; height: 34px; color: var(--ink); background: var(--orange); border-radius: 8px; font-size: 15px; font-weight: 900; }
-    .step-head h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.03em; }
+    .step-num { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; color: var(--ink); background: var(--orange); border-radius: 8px; font-size: 14px; font-weight: 900; }
+    .step-head h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
     .substep-head { display: flex; align-items: baseline; gap: 10px; margin: 34px 0 14px; }
     .substep-num { flex-shrink: 0; color: var(--orange); font-size: 13px; font-weight: 900; letter-spacing: .04em; }
     .substep-head h3 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
@@ -167,7 +176,13 @@
 
   <main class="main">
     <div class="shell">
-      <div class="section-divider">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">Workshops</a>
+        <span class="crumb-sep" aria-hidden="true">&rsaquo;</span>
+        <span>Bedrock OpenAI Agent</span>
+      </nav>
+      <div class="doc-head">
+        <span class="eyebrow">Workshop</span>
         <h1>Bedrock OpenAI Agent</h1>
       </div>
       <div class="intro-block">
