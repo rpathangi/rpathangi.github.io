@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="Connect Amazon Quick to the AWS MCP Server to run SQL against Amazon RDS for PostgreSQL with IAM-governed access.">
+  <title>Query RDS PostgreSQL with Amazon Quick | Challenge</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --ink: #111111;
+      --paper: #f7f7f5;
+      --white: #ffffff;
+      --orange: #ff9900;
+      --orange-bright: #ffb84d;
+      --orange-pale: #fff0d5;
+      --muted: #686d69;
+      --muted-dark: #5e625f;
+      --line: #e3e4df;
+      --line-light: #e5e5e0;
+      --code-bg: #1b1c1b;
+      --code-ink: #eef0ee;
+      --radius-lg: 24px;
+      --font-sans: "Amazon Ember", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    .shell { width: min(calc(100% - 40px), 1180px); margin: 0 auto; }
+    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,.12); background: rgba(17,17,17,.95); backdrop-filter: blur(16px); }
+    .topbar-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 70px; }
+    .nav { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a { padding: 9px 12px; color: #c8cbc8; border-radius: 999px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: color .2s ease, background .2s ease; }
+    .nav a:hover, .nav a:focus-visible, .nav a[aria-current="page"] { color: var(--ink); background: var(--orange); outline: none; }
+
+    .main { padding: 58px 0 100px; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--ink); }
+    .crumb-sep { color: var(--muted); opacity: .6; }
+
+    .doc-head { max-width: 760px; margin-bottom: 12px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 16px; color: #b26a00; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { width: 26px; height: 2px; background: var(--orange); content: ""; }
+    .doc-head h1 { margin: 0 0 16px; font-size: clamp(34px, 5vw, 52px); font-weight: 800; letter-spacing: -.04em; line-height: 1.02; }
+    .goal { max-width: 760px; margin: 0 0 8px; padding: 18px 20px; border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: 12px; background: var(--white); color: #33352f; font-size: 14.5px; line-height: 1.6; }
+    .goal strong { color: var(--ink); }
+
+    .part-head { margin: 56px 0 6px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .part-kicker { display: block; margin-bottom: 8px; color: var(--orange); font-size: 11px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+    .part-head h2 { margin: 0 0 8px; font-size: clamp(24px, 3vw, 32px); font-weight: 800; letter-spacing: -.03em; }
+    .part-head p { max-width: 760px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+    .step { padding-top: 40px; }
+    .step-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .step-num { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; color: var(--ink); background: var(--orange); border-radius: 8px; font-size: 14px; font-weight: 900; }
+    .step-head h3 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+
+    .step p, .step li { color: #33352f; font-size: 14px; line-height: 1.65; }
+    .step > p { max-width: 760px; margin: 0 0 14px; }
+    p code, li code, td code { padding: 1px 6px; background: #ecefe9; border: 1px solid var(--line); border-radius: 5px; font-family: var(--font-mono); font-size: 12.5px; }
+    .step ul, .step ol { max-width: 760px; margin: 0 0 14px; padding-left: 22px; }
+    .step li { margin-bottom: 6px; }
+
+    .code { position: relative; max-width: 760px; margin: 0 0 16px; overflow: hidden; background: var(--code-bg); border-radius: 12px; box-shadow: 0 10px 26px rgba(17,17,17,.12); }
+    .code-label { display: flex; align-items: center; gap: 8px; padding: 9px 16px; color: #9aa09a; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .code-label::before { width: 9px; height: 9px; background: var(--orange); border-radius: 50%; content: ""; }
+    .code pre { margin: 0; padding: 16px 18px; overflow-x: auto; color: var(--code-ink); font-family: var(--font-mono); font-size: 13px; line-height: 1.6; }
+    .code code { font-family: inherit; }
+
+    .callout { max-width: 760px; margin: 0 0 16px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: 10px; background: var(--white); }
+    .callout-title { margin: 0 0 8px; font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+    .callout p { margin: 0; font-size: 13.5px; line-height: 1.6; color: #33352f; }
+    .callout ul { margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.65; color: #33352f; }
+    .callout li { margin-bottom: 6px; }
+    .callout.note { border-left-color: #6f7570; }
+    .callout.note .callout-title { color: var(--muted); }
+    .callout.warn { border-left-color: #d64545; }
+    .callout.warn .callout-title { color: #b53434; }
+
+    .table-wrap { max-width: 760px; margin: 0 0 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; background: var(--white); font-size: 13px; }
+    th, td { padding: 11px 15px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { background: #f0f1ec; font-weight: 800; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    tr:last-child td { border-bottom: none; }
+    td a { color: #b26a00; font-weight: 600; word-break: break-word; }
+
+    .footer { padding: 28px 0 34px; color: #b4b8b4; background: var(--ink); margin-top: 70px; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .footer p { margin: 0; font-size: 11px; }
+    .footer a { color: var(--orange-bright); font-weight: 700; text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .shell { width: min(calc(100% - 28px), 1180px); }
+      .topbar-inner { min-height: 62px; align-items: flex-start; padding: 14px 0; }
+      .nav { margin-top: -2px; }
+      .nav a { padding: 7px 9px; font-size: 10px; }
+      .main { padding: 44px 0 75px; }
+      .footer-inner { display: block; }
+      .footer p + p { margin-top: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <nav class="nav" aria-label="Page navigation">
+        <a href="../index.html">Home</a>
+        <a href="../Services/index.html">Services</a>
+        <a href="../Workshops/index.html">Workshops</a>
+        <a href="index.html" aria-current="page">Challenges</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="shell">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">Challenges</a>
+        <span class="crumb-sep" aria-hidden="true">&rsaquo;</span>
+        <span>Query RDS PostgreSQL with Amazon Quick</span>
+      </nav>
+
+      <div class="doc-head">
+        <span class="eyebrow">Challenge</span>
+        <h1>Query RDS PostgreSQL with Amazon Quick and the AWS MCP Server</h1>
+      </div>
+      <p class="goal"><strong>Goal:</strong> Connect Amazon Quick (as a Model Context Protocol client) to the AWS MCP Server so a Quick AI agent can run SQL against an Amazon RDS for PostgreSQL database using natural language — with access governed by your existing IAM credentials and every call captured in CloudTrail.</p>
+
+      <!-- Part 1 -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Part 1</span>
+          <h2>Prepare your AWS environment</h2>
+          <p>Set up the database, credentials, and permissions the MCP server will use to reach PostgreSQL.</p>
+        </div>
+
+        <div class="callout note">
+          <p class="callout-title">Prerequisites</p>
+          <ul>
+            <li>An <strong>Amazon Quick Professional</strong> subscription</li>
+            <li>An Amazon Quick user with <strong>Author</strong> (or higher) permissions to create action connectors</li>
+            <li>An Amazon RDS for PostgreSQL (or Aurora PostgreSQL) database you can reach</li>
+            <li>Permissions to create IAM policies and AWS Secrets Manager secrets</li>
+          </ul>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">1</span><h3>Confirm your PostgreSQL database</h3></div>
+          <p>Note the database endpoint, port (default <code>5432</code>), and database name. Confirm the network path the MCP server will use is reachable, and that a database user exists with only the privileges the agent needs (prefer read-only for query workloads).</p>
+          <div class="callout note">
+            <p class="callout-title">Data API vs direct connection</p>
+            <p>The <strong>RDS Data API</strong> (<code>rds-data</code>) lets you run SQL over an AWS API call and is available for <strong>Aurora PostgreSQL</strong>. For standard <strong>RDS for PostgreSQL</strong>, connect directly with a driver (for example <code>psycopg</code>) using credentials from Secrets Manager. Both approaches are shown below.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">2</span><h3>Store database credentials in AWS Secrets Manager</h3></div>
+          <p>Create a secret that holds the connection details so nothing is hard-coded:</p>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>aws secretsmanager create-secret \
+  --name rds-postgres \
+  --secret-string '{"host":"mydb.abc123.us-west-2.rds.amazonaws.com","port":5432,"dbname":"appdb","username":"app_ro","password":"REPLACE_ME"}'</code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">3</span><h3>Grant least-privilege IAM permissions</h3></div>
+          <p>The AWS MCP Server executes AWS API calls and sandboxed scripts using your IAM credentials. Attach a policy that allows only what the agent needs — reading the secret, and (for Aurora) the RDS Data API:</p>
+          <div class="code">
+            <div class="code-label">json</div>
+            <pre><code>{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadDbSecret",
+      "Effect": "Allow",
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": "arn:aws:secretsmanager:us-west-2:123456789012:secret:rds-postgres-*"
+    },
+    {
+      "Sid": "RdsDataApi",
+      "Effect": "Allow",
+      "Action": [
+        "rds-data:ExecuteStatement",
+        "rds-data:BatchExecuteStatement"
+      ],
+      "Resource": "arn:aws:rds:us-west-2:123456789012:cluster:my-aurora-postgres"
+    }
+  ]
+}</code></pre>
+          </div>
+          <div class="callout note">
+            <p class="callout-title">Note</p>
+            <p>Omit the <code>RdsDataApi</code> statement if you are connecting directly to standard RDS for PostgreSQL rather than using the Aurora Data API.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Part 2 -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Part 2</span>
+          <h2>Understand the AWS MCP Server</h2>
+          <p>Know what the managed server exposes before you connect Amazon Quick to it.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">4</span><h3>Review the server's capabilities</h3></div>
+          <p>The <a href="https://docs.aws.amazon.com/agent-toolkit/latest/userguide/mcp-server.html" target="_blank" rel="noreferrer">AWS MCP Server</a> is a managed server that gives agents access to AWS through MCP. Key points for this challenge:</p>
+          <ul>
+            <li>Agents can search AWS documentation and retrieve service information <strong>without authentication</strong>.</li>
+            <li>To <strong>execute AWS API calls</strong>, run <strong>Python scripts in a sandbox</strong>, or follow curated skills, agents authenticate through your <strong>existing IAM credentials</strong>.</li>
+            <li>All capabilities are reachable through a <strong>single endpoint</strong>, with CloudWatch metrics and IAM-based access controls.</li>
+            <li><strong>CloudTrail logs every API call</strong>, so database access through the server is auditable.</li>
+          </ul>
+          <p>For this challenge, the agent will use IAM-authenticated capabilities — either the RDS Data API (Aurora) or a sandboxed Python script (standard RDS) — to run SQL.</p>
+        </div>
+      </section>
+
+      <!-- Part 3 -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Part 3</span>
+          <h2>Configure the Amazon Quick MCP integration</h2>
+          <p>Amazon Quick acts as the MCP client and connects to the AWS MCP Server endpoint.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">5</span><h3>Register the MCP integration in Amazon Quick</h3></div>
+          <p>Signed in as an <strong>Author</strong>, create an MCP action connector in Amazon Quick and point it at the AWS MCP Server endpoint. Provide the authentication your server requires so Quick can connect on behalf of the user. Amazon Quick discovers the tools the server exposes and makes them available to agents and automations.</p>
+          <div class="callout note">
+            <p class="callout-title">How Amazon Quick connects</p>
+            <p>Amazon Quick supports MCP integrations for action execution and data access. It acts as an MCP client, connects to your MCP server endpoint, discovers the exposed tools, and invokes them using the customer's authentication, authorization, and governance controls. See the integration walkthrough in the <a href="https://aws.amazon.com/blogs/machine-learning/integrate-external-tools-with-amazon-quick-agents-using-model-context-protocol-mcp/" target="_blank" rel="noreferrer">Amazon Quick + MCP blog</a>.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">6</span><h3>Build an agent that uses the tools</h3></div>
+          <p>Create an Amazon Quick agent and give it access to the MCP integration. In the agent's instructions, describe the database and how it should answer — for example, "Use the connected tools to query the <code>appdb</code> PostgreSQL database and return concise, read-only results."</p>
+        </div>
+      </section>
+
+      <!-- Part 4 -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Part 4</span>
+          <h2>Run commands against RDS PostgreSQL</h2>
+          <p>Ask the agent in natural language; it invokes the MCP tools to run the SQL.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">7</span><h3>Ask the agent a question</h3></div>
+          <p>In the Amazon Quick agent, try prompts such as:</p>
+          <div class="code">
+            <div class="code-label">agent prompts</div>
+            <pre><code>Show the 10 most recent rows from the orders table.
+How many customers signed up in the last 30 days?
+What are the top 5 products by revenue this quarter?</code></pre>
+          </div>
+          <p>The agent translates the request into SQL and runs it through the MCP server using one of the paths below.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">8</span><h3>Path A — Aurora PostgreSQL via the RDS Data API</h3></div>
+          <p>For Aurora PostgreSQL, the agent can run SQL as an AWS API call — no direct database connection required:</p>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>aws rds-data execute-statement \
+  --resource-arn "arn:aws:rds:us-west-2:123456789012:cluster:my-aurora-postgres" \
+  --secret-arn "arn:aws:secretsmanager:us-west-2:123456789012:secret:rds-postgres-abc123" \
+  --database "appdb" \
+  --sql "SELECT id, status, created_at FROM orders ORDER BY created_at DESC LIMIT 10;"</code></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">9</span><h3>Path B — standard RDS for PostgreSQL via a sandboxed script</h3></div>
+          <p>For standard RDS for PostgreSQL, the agent runs a Python script in the sandbox that reads the secret and connects directly:</p>
+          <div class="code">
+            <div class="code-label">python</div>
+            <pre><code>import json
+import boto3
+import psycopg
+
+secret = boto3.client("secretsmanager").get_secret_value(SecretId="rds-postgres")
+creds = json.loads(secret["SecretString"])
+
+with psycopg.connect(
+    host=creds["host"],
+    port=creds.get("port", 5432),
+    dbname=creds["dbname"],
+    user=creds["username"],
+    password=creds["password"],
+) as conn:
+    with conn.cursor() as cur:
+        cur.execute("SELECT id, status, created_at FROM orders ORDER BY created_at DESC LIMIT 10;")
+        for row in cur.fetchall():
+            print(row)</code></pre>
+          </div>
+          <div class="callout warn">
+            <p class="callout-title">Keep access read-only where you can</p>
+            <p>Use a database role limited to <code>SELECT</code> for query agents, and scope the IAM policy and secret to the specific database. This limits blast radius if a prompt asks for more than intended.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Troubleshooting -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Reference</span>
+          <h2>Troubleshooting</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Quick can't connect to the MCP endpoint</td><td>Endpoint not reachable from Amazon Quick, or auth misconfigured</td><td>Confirm the endpoint is publicly reachable and the integration's authentication matches what the server expects</td></tr>
+              <tr><td><code>AccessDeniedException</code> on the query</td><td>IAM identity lacks Data API or Secrets Manager permissions</td><td>Attach the least-privilege policy from Part 1, Step 3</td></tr>
+              <tr><td><code>could not connect to server</code></td><td>Network path or security group blocks the database port</td><td>Allow the MCP server's egress to reach the DB on port <code>5432</code></td></tr>
+              <tr><td>Data API returns <code>BadRequestException</code></td><td>Using the Data API against non-Aurora RDS</td><td>Use Path B (direct connection) for standard RDS for PostgreSQL</td></tr>
+              <tr><td>Agent returns no tools</td><td>Integration not registered or tools not discovered</td><td>Re-check the MCP integration in Amazon Quick and confirm the server exposes tools</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- References -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Reference</span>
+          <h2>References</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Resource</th><th>Link</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>AWS MCP Server (Agent Toolkit for AWS)</td><td><a href="https://docs.aws.amazon.com/agent-toolkit/latest/userguide/mcp-server.html" target="_blank" rel="noreferrer">docs.aws.amazon.com</a></td></tr>
+              <tr><td>Amazon Quick</td><td><a href="https://aws.amazon.com/quick/" target="_blank" rel="noreferrer">aws.amazon.com/quick</a></td></tr>
+              <tr><td>Integrate external tools with Amazon Quick using MCP</td><td><a href="https://aws.amazon.com/blogs/machine-learning/integrate-external-tools-with-amazon-quick-agents-using-model-context-protocol-mcp/" target="_blank" rel="noreferrer">AWS Machine Learning Blog</a></td></tr>
+              <tr><td>RDS Data API (Aurora)</td><td><a href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html" target="_blank" rel="noreferrer">docs.aws.amazon.com</a></td></tr>
+              <tr><td>AWS Secrets Manager</td><td><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html" target="_blank" rel="noreferrer">docs.aws.amazon.com</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Summary -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Summary</span>
+          <h2>Which path to use</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Path</th><th>Best for</th><th>Direct DB connection?</th><th>Credentials</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>RDS Data API (<code>rds-data</code>)</td><td>Aurora PostgreSQL</td><td>No — runs as an AWS API call</td><td>Secrets Manager + IAM</td></tr>
+              <tr><td>Sandboxed Python (<code>psycopg</code>)</td><td>Standard RDS for PostgreSQL</td><td>Yes — driver connection</td><td>Secrets Manager + IAM</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="goal">Either path keeps Amazon Quick as the MCP client and the AWS MCP Server as the IAM-governed broker, so database access stays authenticated, least-privilege, and fully auditable in CloudTrail.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="shell footer-inner"><p>AWS services and workshop field guides</p><p><a href="index.html">Back to Challenges</a> <span aria-hidden="true">·</span> <a href="../index.html">Home</a></p></div></footer>
+</body>
+</html>
