@@ -189,7 +189,7 @@
         <p class="intro-lead">Build a <strong>Lab Manual Q&amp;A agent</strong> using AI-DLC, Kiro, and OpenAI open-weight models on Amazon Bedrock.</p>
 
         <h2>The Problem</h2>
-        <p>Lab scientists spend significant time searching instrument manuals, SOPs, and protocol documents for specific procedures, troubleshooting steps, or safety information. An AI agent that answers these questions instantly — grounded in actual documentation — saves hours per week.</p>
+        <p>Lab scientists spend significant time searching instrument manuals, SOPs, and protocol documents for specific procedures, troubleshooting steps, or safety information. An AI agent that answers these questions instantly - grounded in actual documentation - saves hours per week.</p>
 
         <h2>The Approach</h2>
         <p>You'll use <strong>AI-DLC</strong> (AI-Driven Development Life Cycle) inside <strong>Kiro</strong> to build this agent through a structured workflow:</p>
@@ -201,7 +201,7 @@
         </ol>
         <p>The reasoning engine behind the agent is <strong>OpenAI gpt-oss-120b</strong> running on <strong>Amazon Bedrock</strong>.</p>
 
-        <p class="intro-note">Follow the steps in order — each one builds on the previous. Every command below has a <strong>macOS / Linux</strong> and a <strong>Windows (PowerShell)</strong> tab; pick the one for your machine.</p>
+        <p class="intro-note">Follow the steps in order - each one builds on the previous. Every command below has a <strong>macOS / Linux</strong> and a <strong>Windows (PowerShell)</strong> tab; pick the one for your machine.</p>
       </div>
 
       <!-- Step 1 -->
@@ -214,11 +214,11 @@
       <!-- Step 2 -->
       <section class="step" id="step-2">
         <div class="step-head"><span class="step-num">2</span><h2>Sign In to Kiro</h2></div>
-        <p>Open Kiro and choose an authentication method. Any of the following works for this workshop — see the <a href="https://kiro.dev/docs/getting-started/authentication/" target="_blank" rel="noreferrer">Kiro authentication guide</a> for details.</p>
+        <p>Open Kiro and choose an authentication method. Any of the following works for this workshop - see the <a href="https://kiro.dev/docs/getting-started/authentication/" target="_blank" rel="noreferrer">Kiro authentication guide</a> for details.</p>
         <ul>
-          <li><strong>Google</strong> — sign in with a <a href="https://www.gmail.com/" target="_blank" rel="noreferrer">Google account</a>.</li>
-          <li><strong>GitHub</strong> — sign in with a <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub account</a>.</li>
-          <li><strong>AWS Builder ID</strong> — sign in with an <a href="https://builder.aws.com/" target="_blank" rel="noreferrer">AWS Builder ID</a>.</li>
+          <li><strong>Google</strong> - sign in with a <a href="https://www.gmail.com/" target="_blank" rel="noreferrer">Google account</a>.</li>
+          <li><strong>GitHub</strong> - sign in with a <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub account</a>.</li>
+          <li><strong>AWS Builder ID</strong> - sign in with an <a href="https://builder.aws.com/" target="_blank" rel="noreferrer">AWS Builder ID</a>.</li>
         </ul>
         <p><a class="btn-link" href="https://kiro.dev/docs/getting-started/authentication/" target="_blank" rel="noreferrer">Authentication options <span aria-hidden="true">→</span></a></p>
       </section>
@@ -318,10 +318,10 @@ $env:AWS_REGION = "&lt;REGION_FROM_WORKSHOP_STUDIO&gt;"</code></pre>
         <div class="callout warn">
           <p class="callout-title">Common Errors</p>
           <ul>
-            <li><strong>"You don't have access to this model"</strong> — Wait 30–60 seconds and confirm the workshop event is active.</li>
-            <li><strong>"Region not available"</strong> — Set the region to <code>us-west-2</code> in the console dropdown.</li>
-            <li><strong>InvalidClientTokenId</strong> — Recheck the access key, secret key, and session token in <code>~/.aws/credentials</code> (<code>%USERPROFILE%\.aws\credentials</code> on Windows).</li>
-            <li><strong>AccessDeniedException</strong> — The workshop profile may not have Bedrock permissions. Verify the event is still running.</li>
+            <li><strong>"You don't have access to this model"</strong> - Wait 30–60 seconds and confirm the workshop event is active.</li>
+            <li><strong>"Region not available"</strong> - Set the region to <code>us-west-2</code> in the console dropdown.</li>
+            <li><strong>InvalidClientTokenId</strong> - Recheck the access key, secret key, and session token in <code>~/.aws/credentials</code> (<code>%USERPROFILE%\.aws\credentials</code> on Windows).</li>
+            <li><strong>AccessDeniedException</strong> - The workshop profile may not have Bedrock permissions. Verify the event is still running.</li>
           </ul>
         </div>
       </section>
@@ -358,10 +358,10 @@ pip show strands-agents</code></pre>
         <div class="callout note">
           <p class="callout-title">Troubleshooting</p>
           <ul>
-            <li><strong>Python version below 3.10</strong> — Install Python 3.10+ from <a href="https://python.org" target="_blank" rel="noreferrer">python.org</a> before continuing.</li>
-            <li><strong>"No matching distribution"</strong> — Confirm your Python version: <code>python3 --version</code> (<code>python --version</code> on Windows).</li>
-            <li><strong>Permission errors</strong> — Ensure the virtual environment is activated (you should see <code>(.venv)</code> in your prompt).</li>
-            <li><strong>Windows: "running scripts is disabled"</strong> — Allow the activation script for the current session: <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned</code></li>
+            <li><strong>Python version below 3.10</strong> - Install Python 3.10+ from <a href="https://python.org" target="_blank" rel="noreferrer">python.org</a> before continuing.</li>
+            <li><strong>"No matching distribution"</strong> - Confirm your Python version: <code>python3 --version</code> (<code>python --version</code> on Windows).</li>
+            <li><strong>Permission errors</strong> - Ensure the virtual environment is activated (you should see <code>(.venv)</code> in your prompt).</li>
+            <li><strong>Windows: "running scripts is disabled"</strong> - Allow the activation script for the current session: <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned</code></li>
           </ul>
         </div>
       </section>
@@ -430,7 +430,7 @@ The agent should:
 - Use mock manual data (simulating a centrifuge, spectrophotometer, and PCR thermocycler)
 - Run as a Python script for local testing
 
-Keep it simple — single file, no database, mock data is fine.</code></pre>
+Keep it simple - single file, no database, mock data is fine.</code></pre>
         </div>
 
         <div class="substep-head"><span class="substep-num">7.2</span><h3>Inception Phase</h3></div>
@@ -478,7 +478,7 @@ $env:AWS_REGION = "&lt;REGION_FROM_WORKSHOP_STUDIO&gt;"</code></pre>
         <p><strong>Troubleshooting query:</strong></p>
         <div class="code prompt-block">
           <div class="code-label">Query</div>
-          <pre><code>My spectrophotometer has baseline drift — what should I check?</code></pre>
+          <pre><code>My spectrophotometer has baseline drift - what should I check?</code></pre>
         </div>
 
         <p><strong>Safety query:</strong></p>

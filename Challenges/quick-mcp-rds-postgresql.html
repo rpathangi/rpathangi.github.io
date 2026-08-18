@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111111">
-  <meta name="description" content="Connect Amazon Quick to the AWS MCP Server to run SQL against Amazon RDS for PostgreSQL with IAM-governed access.">
+  <meta name="description" content="Step-by-step: connect Amazon Quick to the AWS MCP Server and run SQL against Amazon RDS for PostgreSQL with IAM-governed access.">
   <title>Query RDS PostgreSQL with Amazon Quick | Challenge</title>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -66,6 +66,7 @@
     p code, li code, td code { padding: 1px 6px; background: #ecefe9; border: 1px solid var(--line); border-radius: 5px; font-family: var(--font-mono); font-size: 12.5px; }
     .step ul, .step ol { max-width: 760px; margin: 0 0 14px; padding-left: 22px; }
     .step li { margin-bottom: 6px; }
+    .step ol.tight { padding-left: 20px; }
 
     .code { position: relative; max-width: 760px; margin: 0 0 16px; overflow: hidden; background: var(--code-bg); border-radius: 12px; box-shadow: 0 10px 26px rgba(17,17,17,.12); }
     .code-label { display: flex; align-items: center; gap: 8px; padding: 9px 16px; color: #9aa09a; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
@@ -132,51 +133,81 @@
         <span class="eyebrow">Challenge</span>
         <h1>Query RDS PostgreSQL with Amazon Quick and the AWS MCP Server</h1>
       </div>
-      <p class="goal"><strong>Goal:</strong> Connect Amazon Quick (as a Model Context Protocol client) to the AWS MCP Server so a Quick AI agent can run SQL against an Amazon RDS for PostgreSQL database using natural language — with access governed by your existing IAM credentials and every call captured in CloudTrail.</p>
+      <p class="goal"><strong>Goal:</strong> Follow these steps in order to connect Amazon Quick (as a Model Context Protocol client) to the AWS MCP Server and run SQL against an Amazon RDS for PostgreSQL database from a Quick agent - access governed by IAM and audited in CloudTrail. Steps are numbered 1&ndash;13; complete each before moving on.</p>
+
+      <div class="callout note">
+        <p class="callout-title">Before you start - have these ready</p>
+        <ul>
+          <li>An <strong>Amazon Quick Professional</strong> subscription, and a Quick user with <strong>Author</strong> (or higher) permissions.</li>
+          <li>An <strong>Amazon RDS for PostgreSQL</strong> or <strong>Aurora PostgreSQL</strong> database, plus its endpoint, port (<code>5432</code>), and database name.</li>
+          <li>The <strong>AWS CLI v2</strong> configured (<code>aws --version</code>) with permission to manage IAM, Secrets Manager, and RDS.</li>
+          <li><strong>Node.js 18+</strong> (for the MCP Inspector check in Step 6) and <strong>psql</strong> or any SQL client to run Step 1.</li>
+          <li>Set your working region once so every command below is consistent:</li>
+        </ul>
+      </div>
+      <div class="code">
+        <div class="code-label">bash</div>
+        <pre><code>export AWS_REGION=us-west-2
+export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+echo "Region=$AWS_REGION  Account=$ACCOUNT_ID"</code></pre>
+      </div>
 
       <!-- Part 1 -->
       <section class="part">
         <div class="part-head">
           <span class="part-kicker">Part 1</span>
-          <h2>Prepare your AWS environment</h2>
-          <p>Set up the database, credentials, and permissions the MCP server will use to reach PostgreSQL.</p>
-        </div>
-
-        <div class="callout note">
-          <p class="callout-title">Prerequisites</p>
-          <ul>
-            <li>An <strong>Amazon Quick Professional</strong> subscription</li>
-            <li>An Amazon Quick user with <strong>Author</strong> (or higher) permissions to create action connectors</li>
-            <li>An Amazon RDS for PostgreSQL (or Aurora PostgreSQL) database you can reach</li>
-            <li>Permissions to create IAM policies and AWS Secrets Manager secrets</li>
-          </ul>
+          <h2>Prepare Amazon RDS for PostgreSQL</h2>
+          <p>Create a read-only login, store its credentials, and grant the exact AWS permissions the agent needs.</p>
         </div>
 
         <div class="step">
-          <div class="step-head"><span class="step-num">1</span><h3>Confirm your PostgreSQL database</h3></div>
-          <p>Note the database endpoint, port (default <code>5432</code>), and database name. Confirm the network path the MCP server will use is reachable, and that a database user exists with only the privileges the agent needs (prefer read-only for query workloads).</p>
-          <div class="callout note">
-            <p class="callout-title">Data API vs direct connection</p>
-            <p>The <strong>RDS Data API</strong> (<code>rds-data</code>) lets you run SQL over an AWS API call and is available for <strong>Aurora PostgreSQL</strong>. For standard <strong>RDS for PostgreSQL</strong>, connect directly with a driver (for example <code>psycopg</code>) using credentials from Secrets Manager. Both approaches are shown below.</p>
+          <div class="step-head"><span class="step-num">1</span><h3>Create a read-only database role</h3></div>
+          <p>Connect to your database with an admin user and create a login that can only read data. This limits what any agent query can do.</p>
+          <div class="code">
+            <div class="code-label">sql</div>
+            <pre><code>-- run against your PostgreSQL database (e.g. via psql)
+CREATE ROLE app_ro LOGIN PASSWORD 'CHANGE_ME_STRONG';
+GRANT CONNECT ON DATABASE appdb TO app_ro;
+GRANT USAGE ON SCHEMA public TO app_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO app_ro;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO app_ro;</code></pre>
           </div>
+          <p>Replace <code>appdb</code> with your database name. Verify you can log in as <code>app_ro</code> before continuing.</p>
         </div>
 
         <div class="step">
-          <div class="step-head"><span class="step-num">2</span><h3>Store database credentials in AWS Secrets Manager</h3></div>
-          <p>Create a secret that holds the connection details so nothing is hard-coded:</p>
+          <div class="step-head"><span class="step-num">2</span><h3>Store the credentials in AWS Secrets Manager</h3></div>
+          <p>Create a secret so nothing is hard-coded. Use your real host and database name:</p>
           <div class="code">
             <div class="code-label">bash</div>
             <pre><code>aws secretsmanager create-secret \
   --name rds-postgres \
-  --secret-string '{"host":"mydb.abc123.us-west-2.rds.amazonaws.com","port":5432,"dbname":"appdb","username":"app_ro","password":"REPLACE_ME"}'</code></pre>
+  --secret-string '{"host":"mydb.abc123.us-west-2.rds.amazonaws.com","port":5432,"dbname":"appdb","username":"app_ro","password":"CHANGE_ME_STRONG"}'</code></pre>
+          </div>
+          <p>Copy the returned <code>ARN</code> (looks like <code>arn:aws:secretsmanager:us-west-2:&lt;account&gt;:secret:rds-postgres-XXXXXX</code>). You'll reference it in Steps 4 and 12.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">3</span><h3>Enable the RDS Data API (Aurora PostgreSQL only)</h3></div>
+          <p>If you use <strong>Aurora PostgreSQL</strong>, turn on the HTTP endpoint so SQL can run as an AWS API call:</p>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>aws rds modify-db-cluster \
+  --db-cluster-identifier my-aurora-postgres \
+  --enable-http-endpoint \
+  --apply-immediately</code></pre>
+          </div>
+          <div class="callout note">
+            <p class="callout-title">Standard RDS for PostgreSQL?</p>
+            <p>The RDS Data API is an Aurora feature. If you run standard RDS for PostgreSQL, skip this step and use the direct-connection path (Step 13, Path B).</p>
           </div>
         </div>
 
         <div class="step">
-          <div class="step-head"><span class="step-num">3</span><h3>Grant least-privilege IAM permissions</h3></div>
-          <p>The AWS MCP Server executes AWS API calls and sandboxed scripts using your IAM credentials. Attach a policy that allows only what the agent needs — reading the secret, and (for Aurora) the RDS Data API:</p>
+          <div class="step-head"><span class="step-num">4</span><h3>Create a least-privilege IAM policy</h3></div>
+          <p>Save this as <code>quick-mcp-rds-policy.json</code>, replacing the account ID, secret ARN, and cluster ARN with yours:</p>
           <div class="code">
-            <div class="code-label">json</div>
+            <div class="code-label">quick-mcp-rds-policy.json</div>
             <pre><code>{
   "Version": "2012-10-17",
   "Statement": [
@@ -189,19 +220,20 @@
     {
       "Sid": "RdsDataApi",
       "Effect": "Allow",
-      "Action": [
-        "rds-data:ExecuteStatement",
-        "rds-data:BatchExecuteStatement"
-      ],
+      "Action": ["rds-data:ExecuteStatement", "rds-data:BatchExecuteStatement"],
       "Resource": "arn:aws:rds:us-west-2:123456789012:cluster:my-aurora-postgres"
     }
   ]
 }</code></pre>
           </div>
-          <div class="callout note">
-            <p class="callout-title">Note</p>
-            <p>Omit the <code>RdsDataApi</code> statement if you are connecting directly to standard RDS for PostgreSQL rather than using the Aurora Data API.</p>
+          <p>Create the policy (drop the <code>RdsDataApi</code> statement if you skipped Step 3):</p>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>aws iam create-policy \
+  --policy-name QuickMcpRdsQuery \
+  --policy-document file://quick-mcp-rds-policy.json</code></pre>
           </div>
+          <p>You will attach this policy to the IAM identity the AWS MCP Server uses in Step 5.</p>
         </div>
       </section>
 
@@ -209,20 +241,34 @@
       <section class="part">
         <div class="part-head">
           <span class="part-kicker">Part 2</span>
-          <h2>Understand the AWS MCP Server</h2>
-          <p>Know what the managed server exposes before you connect Amazon Quick to it.</p>
+          <h2>Connect and authorize the AWS MCP Server</h2>
+          <p>The AWS MCP Server is managed and authenticates through your IAM credentials.</p>
         </div>
 
         <div class="step">
-          <div class="step-head"><span class="step-num">4</span><h3>Review the server's capabilities</h3></div>
-          <p>The <a href="https://docs.aws.amazon.com/agent-toolkit/latest/userguide/mcp-server.html" target="_blank" rel="noreferrer">AWS MCP Server</a> is a managed server that gives agents access to AWS through MCP. Key points for this challenge:</p>
-          <ul>
-            <li>Agents can search AWS documentation and retrieve service information <strong>without authentication</strong>.</li>
-            <li>To <strong>execute AWS API calls</strong>, run <strong>Python scripts in a sandbox</strong>, or follow curated skills, agents authenticate through your <strong>existing IAM credentials</strong>.</li>
-            <li>All capabilities are reachable through a <strong>single endpoint</strong>, with CloudWatch metrics and IAM-based access controls.</li>
-            <li><strong>CloudTrail logs every API call</strong>, so database access through the server is auditable.</li>
-          </ul>
-          <p>For this challenge, the agent will use IAM-authenticated capabilities — either the RDS Data API (Aurora) or a sandboxed Python script (standard RDS) — to run SQL.</p>
+          <div class="step-head"><span class="step-num">5</span><h3>Get the endpoint and attach the policy</h3></div>
+          <p>Open the <a href="https://docs.aws.amazon.com/agent-toolkit/latest/userguide/mcp-server.html" target="_blank" rel="noreferrer">AWS MCP Server guide</a> and follow it to obtain your <strong>MCP server endpoint URL</strong> and the IAM identity (role) the server uses to execute AWS API calls and sandboxed scripts on your behalf.</p>
+          <ol class="tight">
+            <li>Note the endpoint URL - you'll paste it into Amazon Quick in Step 7. Save it for reference:</li>
+          </ol>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code># Paste the endpoint from the AWS MCP Server guide
+export MCP_ENDPOINT="https://&lt;your-aws-mcp-server-endpoint&gt;"</code></pre>
+          </div>
+          <ol class="tight" start="2">
+            <li>Attach the Step 4 policy to that IAM role so the server can reach your database:</li>
+          </ol>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>aws iam attach-role-policy \
+  --role-name &lt;aws-mcp-server-execution-role&gt; \
+  --policy-arn arn:aws:iam::123456789012:policy/QuickMcpRdsQuery</code></pre>
+          </div>
+          <div class="callout note">
+            <p class="callout-title">Why IAM here</p>
+            <p>The AWS MCP Server runs AWS API calls, sandboxed Python, and curated skills using your existing IAM credentials, through a single endpoint with CloudWatch metrics and CloudTrail logging. Documentation search works without authentication - a quick way to confirm the endpoint is reachable in Step 6.</p>
+          </div>
         </div>
       </section>
 
@@ -230,22 +276,23 @@
       <section class="part">
         <div class="part-head">
           <span class="part-kicker">Part 3</span>
-          <h2>Configure the Amazon Quick MCP integration</h2>
-          <p>Amazon Quick acts as the MCP client and connects to the AWS MCP Server endpoint.</p>
+          <h2>Validate the endpoint before Amazon Quick</h2>
+          <p>Confirm the server is protocol-compliant so the Quick integration doesn't fail later.</p>
         </div>
 
         <div class="step">
-          <div class="step-head"><span class="step-num">5</span><h3>Register the MCP integration in Amazon Quick</h3></div>
-          <p>Signed in as an <strong>Author</strong>, create an MCP action connector in Amazon Quick and point it at the AWS MCP Server endpoint. Provide the authentication your server requires so Quick can connect on behalf of the user. Amazon Quick discovers the tools the server exposes and makes them available to agents and automations.</p>
-          <div class="callout note">
-            <p class="callout-title">How Amazon Quick connects</p>
-            <p>Amazon Quick supports MCP integrations for action execution and data access. It acts as an MCP client, connects to your MCP server endpoint, discovers the exposed tools, and invokes them using the customer's authentication, authorization, and governance controls. See the integration walkthrough in the <a href="https://aws.amazon.com/blogs/machine-learning/integrate-external-tools-with-amazon-quick-agents-using-model-context-protocol-mcp/" target="_blank" rel="noreferrer">Amazon Quick + MCP blog</a>.</p>
+          <div class="step-head"><span class="step-num">6</span><h3>Test the endpoint with the MCP Inspector</h3></div>
+          <p>The MCP Inspector is a generic MCP client. Use it to connect, list tools, and confirm a SQL/execute capability is present:</p>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>npx @modelcontextprotocol/inspector</code></pre>
           </div>
-        </div>
-
-        <div class="step">
-          <div class="step-head"><span class="step-num">6</span><h3>Build an agent that uses the tools</h3></div>
-          <p>Create an Amazon Quick agent and give it access to the MCP integration. In the agent's instructions, describe the database and how it should answer — for example, "Use the connected tools to query the <code>appdb</code> PostgreSQL database and return concise, read-only results."</p>
+          <ol class="tight">
+            <li>In the Inspector UI, set <strong>Transport</strong> to <strong>Streamable HTTP</strong> (SSE also works; HTTP streaming is preferred).</li>
+            <li>Enter your <code>MCP_ENDPOINT</code> and any auth the server requires.</li>
+            <li>Choose <strong>Connect</strong>, then <strong>List Tools</strong>. Confirm you can see the tools you intend to call (for example, an AWS API / execute-statement capability).</li>
+          </ol>
+          <p>If the Inspector connects and lists tools, the server is ready for Amazon Quick.</p>
         </div>
       </section>
 
@@ -253,25 +300,86 @@
       <section class="part">
         <div class="part-head">
           <span class="part-kicker">Part 4</span>
-          <h2>Run commands against RDS PostgreSQL</h2>
-          <p>Ask the agent in natural language; it invokes the MCP tools to run the SQL.</p>
+          <h2>Register the MCP integration in Amazon Quick</h2>
+          <p>These are the exact Amazon Quick console steps.</p>
         </div>
 
         <div class="step">
-          <div class="step-head"><span class="step-num">7</span><h3>Ask the agent a question</h3></div>
-          <p>In the Amazon Quick agent, try prompts such as:</p>
+          <div class="step-head"><span class="step-num">7</span><h3>Create the integration</h3></div>
+          <ol class="tight">
+            <li>Sign in to the <strong>Amazon Quick console</strong> as a user with <strong>Author</strong> permissions or higher.</li>
+            <li>Choose <strong>Integrations</strong>.</li>
+            <li>Choose <strong>Add (+)</strong>, then choose <strong>Model Context Protocol (MCP)</strong>.</li>
+            <li>On the <strong>Create integration</strong> page, enter a <strong>Name</strong>, an optional <strong>Description</strong>, and your <strong>MCP server endpoint URL</strong> (your <code>MCP_ENDPOINT</code>). Choose <strong>Next</strong>.</li>
+            <li>Select the <strong>authentication method</strong> your server supports (user authentication or service authentication) and enter the required values. If the server supports OAuth Dynamic Client Registration (DCR), the auth step is skipped and credentials are exchanged at sign-in.</li>
+            <li>Choose <strong>Create and continue</strong>. Review the discovered tools and data capabilities, then choose <strong>Next</strong>.</li>
+            <li>Optionally share the integration with other users, then choose <strong>Done</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="callout warn">
+          <p class="callout-title">If integration creation fails on OAuth</p>
+          <p>Some identity providers block OAuth redirects unless the Amazon Quick callback URI is allow-listed in your OAuth client. Add the redirect URI for your Region, for example:</p>
+          <ul>
+            <li><code>https://us-east-1.quicksight.aws.amazon.com/sn/oauthcallback</code></li>
+            <li><code>https://us-west-2.quicksight.aws.amazon.com/sn/oauthcallback</code></li>
+            <li><code>https://eu-west-1.quicksight.aws.amazon.com/sn/oauthcallback</code></li>
+            <li><code>https://ap-southeast-2.quicksight.aws.amazon.com/sn/oauthcallback</code></li>
+          </ul>
+        </div>
+
+        <div class="callout note">
+          <p class="callout-title">Two limits to design around</p>
+          <p>Each MCP operation has a fixed <strong>300-second timeout</strong> (operations that exceed it fail with HTTP 424) - keep queries fast. Amazon Quick also treats the tool list as <strong>static after registration</strong>; if the server's tools change, re-authenticate or refresh the integration.</p>
+        </div>
+      </section>
+
+      <!-- Part 5 -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Part 5</span>
+          <h2>Test, then use it in an agent</h2>
+          <p>Verify the tools work, then let an agent run SQL from natural language.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">8</span><h3>Test the action in Amazon Quick</h3></div>
+          <p>Use the built-in <strong>Test APIs</strong> section for your new integration to invoke a tool directly and confirm it returns data. A successful test means Amazon Quick can authenticate to the server and call the tool.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">9</span><h3>Build a Chat Agent and connect the integration</h3></div>
+          <ol class="tight">
+            <li>In Amazon Quick, create a <strong>Chat Agent</strong>.</li>
+            <li>Add the MCP integration you created so the agent can call its tools.</li>
+            <li>Give the agent instructions, for example: <em>"Use the connected tools to run read-only SQL against the <code>appdb</code> PostgreSQL database and return concise results. Never modify data."</em></li>
+          </ol>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">10</span><h3>Ask questions in natural language</h3></div>
+          <p>In the agent, try prompts such as:</p>
           <div class="code">
             <div class="code-label">agent prompts</div>
             <pre><code>Show the 10 most recent rows from the orders table.
 How many customers signed up in the last 30 days?
 What are the top 5 products by revenue this quarter?</code></pre>
           </div>
-          <p>The agent translates the request into SQL and runs it through the MCP server using one of the paths below.</p>
+          <p>The agent turns each request into SQL and runs it through the MCP server using one of the two paths in Step 13.</p>
+        </div>
+      </section>
+
+      <!-- Part 6 -->
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Part 6</span>
+          <h2>How the query actually runs</h2>
+          <p>Reference for what the tool does under the hood - and how to verify it yourself from the CLI.</p>
         </div>
 
         <div class="step">
-          <div class="step-head"><span class="step-num">8</span><h3>Path A — Aurora PostgreSQL via the RDS Data API</h3></div>
-          <p>For Aurora PostgreSQL, the agent can run SQL as an AWS API call — no direct database connection required:</p>
+          <div class="step-head"><span class="step-num">11</span><h3>Path A - Aurora PostgreSQL via the RDS Data API</h3></div>
+          <p>For Aurora, SQL runs as an AWS API call with no direct connection. Verify from the CLI using your secret and cluster ARNs:</p>
           <div class="code">
             <div class="code-label">bash</div>
             <pre><code>aws rds-data execute-statement \
@@ -283,32 +391,40 @@ What are the top 5 products by revenue this quarter?</code></pre>
         </div>
 
         <div class="step">
-          <div class="step-head"><span class="step-num">9</span><h3>Path B — standard RDS for PostgreSQL via a sandboxed script</h3></div>
-          <p>For standard RDS for PostgreSQL, the agent runs a Python script in the sandbox that reads the secret and connects directly:</p>
+          <div class="step-head"><span class="step-num">12</span><h3>Path B - standard RDS via a sandboxed script</h3></div>
+          <p>For standard RDS for PostgreSQL, the tool reads the secret and connects with a driver. The equivalent Python:</p>
           <div class="code">
             <div class="code-label">python</div>
-            <pre><code>import json
-import boto3
-import psycopg
+            <pre><code>import json, boto3, psycopg
 
 secret = boto3.client("secretsmanager").get_secret_value(SecretId="rds-postgres")
 creds = json.loads(secret["SecretString"])
 
 with psycopg.connect(
-    host=creds["host"],
-    port=creds.get("port", 5432),
-    dbname=creds["dbname"],
-    user=creds["username"],
-    password=creds["password"],
+    host=creds["host"], port=creds.get("port", 5432),
+    dbname=creds["dbname"], user=creds["username"], password=creds["password"],
 ) as conn:
     with conn.cursor() as cur:
         cur.execute("SELECT id, status, created_at FROM orders ORDER BY created_at DESC LIMIT 10;")
         for row in cur.fetchall():
             print(row)</code></pre>
           </div>
-          <div class="callout warn">
-            <p class="callout-title">Keep access read-only where you can</p>
-            <p>Use a database role limited to <code>SELECT</code> for query agents, and scope the IAM policy and secret to the specific database. This limits blast radius if a prompt asks for more than intended.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-head"><span class="step-num">13</span><h3>Clean up when you're done</h3></div>
+          <p>Remove the test integration and any credentials you created:</p>
+          <ol class="tight">
+            <li>In the Amazon Quick console, choose <strong>Integrations</strong>, select the integration, open the <strong>Actions</strong> (three-dot) menu, and choose <strong>Delete integration</strong>; confirm.</li>
+            <li>If you used OAuth, revoke the Amazon Quick client in your authorization server.</li>
+            <li>Delete AWS test resources you no longer need:</li>
+          </ol>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>aws iam detach-role-policy --role-name &lt;aws-mcp-server-execution-role&gt; \
+  --policy-arn arn:aws:iam::123456789012:policy/QuickMcpRdsQuery
+aws iam delete-policy --policy-arn arn:aws:iam::123456789012:policy/QuickMcpRdsQuery
+aws secretsmanager delete-secret --secret-id rds-postgres --recovery-window-in-days 7</code></pre>
           </div>
         </div>
       </section>
@@ -325,11 +441,12 @@ with psycopg.connect(
               <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
             </thead>
             <tbody>
-              <tr><td>Quick can't connect to the MCP endpoint</td><td>Endpoint not reachable from Amazon Quick, or auth misconfigured</td><td>Confirm the endpoint is publicly reachable and the integration's authentication matches what the server expects</td></tr>
-              <tr><td><code>AccessDeniedException</code> on the query</td><td>IAM identity lacks Data API or Secrets Manager permissions</td><td>Attach the least-privilege policy from Part 1, Step 3</td></tr>
-              <tr><td><code>could not connect to server</code></td><td>Network path or security group blocks the database port</td><td>Allow the MCP server's egress to reach the DB on port <code>5432</code></td></tr>
-              <tr><td>Data API returns <code>BadRequestException</code></td><td>Using the Data API against non-Aurora RDS</td><td>Use Path B (direct connection) for standard RDS for PostgreSQL</td></tr>
-              <tr><td>Agent returns no tools</td><td>Integration not registered or tools not discovered</td><td>Re-check the MCP integration in Amazon Quick and confirm the server exposes tools</td></tr>
+              <tr><td>Integration creation fails on OAuth</td><td>Quick callback URI not allow-listed</td><td>Add the Region's <code>/sn/oauthcallback</code> redirect URI to your OAuth client (Step 7 callout)</td></tr>
+              <tr><td>Tool call fails with <strong>HTTP 424</strong></td><td>Operation exceeded the 300-second limit</td><td>Return fewer rows, add <code>LIMIT</code>, and keep queries fast</td></tr>
+              <tr><td>Inspector or Quick shows no tools</td><td>Transport mismatch or server not exposing tools</td><td>Use Streamable HTTP over HTTPS; confirm tools in the MCP Inspector (Step 6)</td></tr>
+              <tr><td><code>AccessDeniedException</code> on the query</td><td>IAM role missing Data API or Secrets Manager access</td><td>Attach the Step 4 policy to the MCP server's IAM role (Step 5)</td></tr>
+              <tr><td>Data API returns <code>BadRequestException</code></td><td>Using the Data API on non-Aurora RDS</td><td>Use Path B (Step 12) for standard RDS for PostgreSQL</td></tr>
+              <tr><td><code>could not connect to server</code></td><td>Security group blocks the DB port</td><td>Allow the server's egress to reach the DB on port <code>5432</code></td></tr>
             </tbody>
           </table>
         </div>
@@ -352,29 +469,10 @@ with psycopg.connect(
               <tr><td>Integrate external tools with Amazon Quick using MCP</td><td><a href="https://aws.amazon.com/blogs/machine-learning/integrate-external-tools-with-amazon-quick-agents-using-model-context-protocol-mcp/" target="_blank" rel="noreferrer">AWS Machine Learning Blog</a></td></tr>
               <tr><td>RDS Data API (Aurora)</td><td><a href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html" target="_blank" rel="noreferrer">docs.aws.amazon.com</a></td></tr>
               <tr><td>AWS Secrets Manager</td><td><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html" target="_blank" rel="noreferrer">docs.aws.amazon.com</a></td></tr>
+              <tr><td>MCP Inspector</td><td><a href="https://modelcontextprotocol.io/docs/tools/inspector" target="_blank" rel="noreferrer">modelcontextprotocol.io</a></td></tr>
             </tbody>
           </table>
         </div>
-      </section>
-
-      <!-- Summary -->
-      <section class="part">
-        <div class="part-head">
-          <span class="part-kicker">Summary</span>
-          <h2>Which path to use</h2>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Path</th><th>Best for</th><th>Direct DB connection?</th><th>Credentials</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>RDS Data API (<code>rds-data</code>)</td><td>Aurora PostgreSQL</td><td>No — runs as an AWS API call</td><td>Secrets Manager + IAM</td></tr>
-              <tr><td>Sandboxed Python (<code>psycopg</code>)</td><td>Standard RDS for PostgreSQL</td><td>Yes — driver connection</td><td>Secrets Manager + IAM</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="goal">Either path keeps Amazon Quick as the MCP client and the AWS MCP Server as the IAM-governed broker, so database access stays authenticated, least-privilege, and fully auditable in CloudTrail.</p>
       </section>
     </div>
   </main>
