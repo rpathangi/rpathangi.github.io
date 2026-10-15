@@ -69,10 +69,10 @@
     .code { position: relative; max-width: 760px; margin: 0 0 16px; overflow: hidden; background: var(--code-bg); border-radius: 12px; box-shadow: 0 10px 26px rgba(17,17,17,.12); }
     .code-label { display: flex; align-items: center; gap: 8px; padding: 9px 16px; color: #9aa09a; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
     .code-label::before { width: 9px; height: 9px; background: var(--orange); border-radius: 50%; content: ""; }
-    .code pre { margin: 0; padding: 16px 18px; overflow-x: auto; color: var(--code-ink); font-family: var(--font-mono); font-size: 13px; line-height: 1.6; }
+    .code pre { max-width: 100%; margin: 0; padding: 16px 18px; overflow-x: auto; color: var(--code-ink); font-family: var(--font-mono); font-size: 13px; line-height: 1.6; white-space: pre; }
     .code code { font-family: inherit; }
     .complete-prompt { max-width: 100%; border: 2px solid var(--orange); }
-    .complete-prompt pre { max-height: 70vh; white-space: pre; }
+    .complete-prompt pre { max-height: 70vh; overflow: auto; }
 
     .callout { max-width: 760px; margin: 0 0 16px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: 10px; background: var(--white); }
     .callout-title { margin: 0 0 8px; font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
@@ -160,7 +160,7 @@
         </div>
       </section>
 
-      <section class="part">
+      <section class="part" id="customize-before-use">
         <div class="part-head">
           <span class="part-kicker">Required customization</span>
           <h2>Customize before use</h2>
@@ -174,10 +174,10 @@
           <ul>
             <li><strong>Project:</strong> project and repository name, package manager, exact dependency versions, runtime versions, and naming conventions.</li>
             <li><strong>Deployment:</strong> AWS account, Region, environment, budget, Region constraints, deployment owner, approvers, and credential/role ownership.</li>
-            <li><strong>Identity:</strong> tenant claim name and identity model, including <code>tenantId</code>, Cognito <code>sub</code>, actor types, administrators, and privileged workflows.</li>
+            <li id="identity-customization"><strong>Identity:</strong> customize tenant claim and Cognito identity attribute names, including <code>&lt;TENANT_CLAIM_NAME&gt;</code> and <code>&lt;COGNITO_IDENTITY_ATTRIBUTE_NAME&gt;</code>; define actor types, administrators, and privileged workflows.</li>
             <li><strong>Domain:</strong> entity name and fields, lifecycle operations, allowed non-PII audit detail fields, reason-for-change rules, signature meanings, and validation evidence.</li>
             <li><strong>Isolation:</strong> placeholder tenant IDs, roles, S3 prefixes, Athena partitions, OpenSearch index naming, authorization boundaries, and cross-tenant denial proof cases.</li>
-            <li><strong>Retention:</strong> Object Lock mode, organization-specific retention obligation, legal holds, teardown expectations, and resources that must use <code>RETAIN</code>.</li>
+            <li id="retention-customization"><strong>Retention:</strong> customize Object Lock mode, organization-specific retention obligations, legal holds, and teardown expectations; identify resources that require <code>RETAIN</code> removal policies.</li>
             <li><strong>Cryptography:</strong> KMS ownership, key administrators and users, key policy, rotation, recovery, and least-privilege roles.</li>
             <li><strong>Search and network:</strong> Athena, Lake Formation, and OpenSearch choices; endpoints; VPC controls; query limits; and indexing expectations.</li>
             <li><strong>Governance:</strong> compliance/control mapping, evidence requirements, threat model, data classification, privacy review, independent validation, and regulatory interpretation.</li>
@@ -186,7 +186,7 @@
         </div>
       </section>
 
-      <section class="part">
+      <section class="part" id="complete-starter-prompt">
         <div class="part-head">
           <span class="part-kicker">Copy and customize</span>
           <h2>Complete starter prompt</h2>
@@ -194,7 +194,7 @@
         </div>
         <div class="code complete-prompt">
           <div class="code-label">Complete starter prompt &mdash; copy entire block</div>
-          <pre><code>/aidlc Build a minimal, self-contained AWS CDK app in TypeScript that is a working proof-of-concept for multi-tenant SaaS application-level audit logging. It captures a SaaS application's own domain audit events, attributes each to an actor and a tenant, delivers them reliably and decoupled from the request path, stores them immutably (append-only, WORM) in S3, enforces per-tenant isolation of the audit trail, and makes events searchable per tenant. The sample domain is a regulated analytical lab with a single Sample entity. The full build specification follows below - treat it as the authoritative detail for every stage.
+          <pre tabindex="0" aria-label="Complete starter prompt"><code id="complete-starter-prompt-text">/aidlc Build a minimal, self-contained AWS CDK app in TypeScript that is a working proof-of-concept for multi-tenant SaaS application-level audit logging. It captures a SaaS application's own domain audit events, attributes each to an actor and a tenant, delivers them reliably and decoupled from the request path, stores them immutably (append-only, WORM) in S3, enforces per-tenant isolation of the audit trail, and makes events searchable per tenant. The sample domain is a regulated analytical lab with a single Sample entity. The full build specification follows below - treat it as the authoritative detail for every stage.
 
 PROJECT VARIABLES AND DECISIONS
 Before implementation, create a customization record and require the project owner to replace or approve every bracketed placeholder and design decision. Do not infer real values, credentials, tenant identifiers, customer data, private endpoints, or PII.
@@ -400,26 +400,31 @@ aidlc doctor</code></pre>
         </div>
       </section>
 
-      <section class="part">
+      <section class="part" id="architecture-overview">
         <div class="part-head">
           <span class="part-kicker">Evaluate before use</span>
           <h2>Architecture overview</h2>
           <p>The prompt asks the coding tool to generate the following future POC flow. This overview helps reviewers evaluate the design before copying the prompt.</p>
         </div>
-        <div class="code">
+        <div class="code architecture-flow">
           <div class="code-label">Proposed POC flow</div>
-          <pre><code>Tenant User
+          <pre tabindex="0" aria-label="Proposed POC flow"><code id="proposed-poc-flow-text">Write path:
+Tenant User
   -&gt; API Gateway (Cognito authorizer validates tenantId/sub)
   -&gt; Sample Lambda
   -&gt; DynamoDB write
   -&gt; EventBridge PutEvents (async)
-      |--&gt; rule -&gt; Firehose -&gt; Object-Locked S3 -&gt; Glue -&gt; Athena
-      `--&gt; rule -&gt; Indexing Lambda -&gt; AOSS tenant index
+      |--&gt; Rule
+      |    `--&gt; Firehose --&gt; Object-Locked S3 --&gt; Glue --&gt; Athena
+      `--&gt; Rule
+           `--&gt; Indexing Lambda --&gt; OpenSearch Serverless
 
+Query path:
 Tenant User
   -&gt; API Gateway
-  -&gt; Query Lambda (revalidates tenant)
-      `--&gt; Athena / AOSS</code></pre>
+  -&gt; Query Lambda (independently revalidates tenant)
+      |--&gt; Athena
+      `--&gt; OpenSearch Serverless</code></pre>
         </div>
         <div class="table-wrap">
           <table>
