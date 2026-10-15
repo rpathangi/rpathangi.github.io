@@ -1,2 +1,6 @@
 # macOS
 .DS_Store
+
+# Agent-generated workflow and review artifacts
+.agents/
+semantic-review/
