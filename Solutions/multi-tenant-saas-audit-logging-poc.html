@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <meta name="description" content="Customize and use this getting-started prompt to generate a multi-tenant SaaS audit logging proof of concept with an agentic coding tool.">
+  <title>Multi-Tenant SaaS Audit Logging POC Starter Prompt | Solution</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --ink: #111111;
+      --paper: #f7f7f5;
+      --white: #ffffff;
+      --orange: #ff9900;
+      --orange-bright: #ffb84d;
+      --orange-pale: #fff0d5;
+      --muted: #686d69;
+      --muted-dark: #5e625f;
+      --line: #e3e4df;
+      --line-light: #e5e5e0;
+      --code-bg: #1b1c1b;
+      --code-ink: #eef0ee;
+      --radius-lg: 24px;
+      --font-sans: "Amazon Ember", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; }
+    .shell { width: min(calc(100% - 40px), 1180px); margin: 0 auto; }
+    .topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,.12); background: rgba(17,17,17,.95); backdrop-filter: blur(16px); }
+    .topbar-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 70px; }
+    .nav { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a { padding: 9px 12px; color: #c8cbc8; border-radius: 999px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: color .2s ease, background .2s ease; }
+    .nav a:hover, .nav a:focus-visible, .nav a[aria-current="page"] { color: var(--ink); background: var(--orange); outline: none; }
+
+    .main { padding: 58px 0 100px; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; color: var(--muted); font-size: 12px; font-weight: 700; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover, .breadcrumb a:focus-visible { color: var(--ink); }
+    .crumb-sep { color: var(--muted); opacity: .6; }
+
+    .doc-head { max-width: 760px; margin-bottom: 12px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 16px; color: #b26a00; font-size: 11px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+    .eyebrow::before { width: 26px; height: 2px; background: var(--orange); content: ""; }
+    .doc-head h1 { margin: 0 0 16px; font-size: clamp(34px, 5vw, 52px); font-weight: 800; letter-spacing: -.04em; line-height: 1.02; }
+    .goal { max-width: 760px; margin: 0 0 16px; padding: 18px 20px; border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: 12px; background: var(--white); color: #33352f; font-size: 14.5px; line-height: 1.6; }
+    .goal strong { color: var(--ink); }
+
+    .part-head { margin: 56px 0 6px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .part-kicker { display: block; margin-bottom: 8px; color: var(--orange); font-size: 11px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+    .part-head h2 { margin: 0 0 8px; font-size: clamp(24px, 3vw, 32px); font-weight: 800; letter-spacing: -.03em; }
+    .part-head p { max-width: 760px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+    .step { padding-top: 40px; }
+    .step-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .step-num { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; color: var(--ink); background: var(--orange); border-radius: 8px; font-size: 14px; font-weight: 900; }
+    .step-head h3 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+    .step p, .step li { color: #33352f; font-size: 14px; line-height: 1.65; }
+    .step > p { max-width: 760px; margin: 0 0 14px; }
+    p code, li code, td code { padding: 1px 6px; background: #ecefe9; border: 1px solid var(--line); border-radius: 5px; font-family: var(--font-mono); font-size: 12.5px; }
+    .step ul, .step ol { max-width: 760px; margin: 0 0 14px; padding-left: 22px; }
+    .step li { margin-bottom: 6px; }
+
+    .code { position: relative; max-width: 760px; margin: 0 0 16px; overflow: hidden; background: var(--code-bg); border-radius: 12px; box-shadow: 0 10px 26px rgba(17,17,17,.12); }
+    .code-label { display: flex; align-items: center; gap: 8px; padding: 9px 16px; color: #9aa09a; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.08); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .code-label::before { width: 9px; height: 9px; background: var(--orange); border-radius: 50%; content: ""; }
+    .code pre { margin: 0; padding: 16px 18px; overflow-x: auto; color: var(--code-ink); font-family: var(--font-mono); font-size: 13px; line-height: 1.6; }
+    .code code { font-family: inherit; }
+    .complete-prompt { max-width: 100%; border: 2px solid var(--orange); }
+    .complete-prompt pre { max-height: 70vh; white-space: pre; }
+
+    .callout { max-width: 760px; margin: 0 0 16px; padding: 16px 18px; border: 1px solid var(--line); border-left: 4px solid var(--orange); border-radius: 10px; background: var(--white); }
+    .callout-title { margin: 0 0 8px; font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+    .callout p { margin: 0; font-size: 13.5px; line-height: 1.6; color: #33352f; }
+    .callout ul { margin: 0; padding-left: 20px; font-size: 13.5px; line-height: 1.65; color: #33352f; }
+    .callout li { margin-bottom: 6px; }
+    .callout.note { border-left-color: #6f7570; }
+    .callout.note .callout-title { color: var(--muted); }
+    .callout.warn { border-left-color: #d64545; }
+    .callout.warn .callout-title { color: #b53434; }
+
+    .table-wrap { max-width: 760px; margin: 0 0 16px; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; background: var(--white); font-size: 13px; }
+    th, td { padding: 11px 15px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { background: #f0f1ec; font-weight: 800; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+    tr:last-child td { border-bottom: none; }
+    td a { color: #b26a00; font-weight: 600; word-break: break-word; }
+
+    .footer { padding: 28px 0 34px; color: #b4b8b4; background: var(--ink); margin-top: 70px; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .footer p { margin: 0; font-size: 11px; }
+    .footer a { color: var(--orange-bright); font-weight: 700; text-decoration: none; }
+    .footer a:hover, .footer a:focus-visible { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .shell { width: min(calc(100% - 28px), 1180px); }
+      .topbar-inner { min-height: 62px; align-items: flex-start; padding: 14px 0; }
+      .nav { margin-top: -2px; }
+      .nav a { padding: 7px 9px; font-size: 10px; }
+      .main { padding: 44px 0 75px; }
+      .code pre { font-size: 12px; }
+      .footer-inner { display: block; }
+      .footer p + p { margin-top: 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <nav class="nav" aria-label="Page navigation">
+        <a href="../index.html">Home</a>
+        <a href="../Services/index.html">Services</a>
+        <a href="../Workshops/index.html">Workshops</a>
+        <a href="index.html" aria-current="page">Solutions</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="shell">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">Solutions</a>
+        <span class="crumb-sep" aria-hidden="true">&rsaquo;</span>
+        <span>Multi-Tenant SaaS Audit Logging POC Starter Prompt</span>
+      </nav>
+
+      <div class="doc-head">
+        <span class="eyebrow">Starter prompt</span>
+        <h1>Multi-Tenant SaaS Audit Logging POC Starter Prompt</h1>
+      </div>
+      <p class="goal"><strong>Goal:</strong> Customize this getting-started prompt, then paste it into Kiro with AI-DLC or a comparable agentic coding tool to generate and validate a stage-gated AWS CDK TypeScript proof of concept. This page is a prompt template; it does not claim that the application or infrastructure already exists.</p>
+
+      <div class="callout warn">
+        <p class="callout-title">POC only &mdash; not production-ready</p>
+        <p>This template does not by itself satisfy SOC 2 or 21 CFR Part 11, and it provides no compliance guarantee. Substantial project-specific architecture, security, privacy, validation, operational, and regulatory review is required before audit-evidence or production use. Deployment is a separate, high-risk action: obtain explicit approval from the target AWS account owner before any deployment.</p>
+      </div>
+
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Start here</span>
+          <h2>How to use this template</h2>
+          <p>Keep human review in the loop from initial customization through any separately approved deployment.</p>
+        </div>
+        <div class="step">
+          <ol>
+            <li>Review the prerequisites, caveats, architecture, and context-only references on this page.</li>
+            <li>Customize every project variable and design decision in the checklist below using placeholders until your authorized project owner supplies approved values.</li>
+            <li>Copy the complete starter prompt as one contiguous block.</li>
+            <li>Paste the customized prompt into Kiro with AI-DLC, or adapt it for a comparable agentic coding tool.</li>
+            <li>Review the generated plan and approve each stage gate only after its assumptions and evidence meet project requirements.</li>
+            <li>Run the local validation commands and review generated code, dependencies, tests, and synthesized infrastructure.</li>
+            <li>Do not deploy until the AWS target account owner explicitly approves the account, Region, retention behavior, cost, and deployment plan.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Required customization</span>
+          <h2>Customize before use</h2>
+          <p>Replace or resolve every project-specific value and decision. The template defaults are examples, not universal compliance requirements.</p>
+        </div>
+        <div class="callout warn">
+          <p class="callout-title">Use placeholders in shared drafts</p>
+          <p>Keep account, Region, environment, tenant, role, key, endpoint, and identity values as named placeholders such as <code>&lt;TARGET_AWS_ACCOUNT_ID&gt;</code> until authorized owners provide approved values through the project&rsquo;s secure process. Never publish credentials, private endpoints, customer data, or PII.</p>
+        </div>
+        <div class="step">
+          <ul>
+            <li><strong>Project:</strong> project and repository name, package manager, exact dependency versions, runtime versions, and naming conventions.</li>
+            <li><strong>Deployment:</strong> AWS account, Region, environment, budget, Region constraints, deployment owner, approvers, and credential/role ownership.</li>
+            <li><strong>Identity:</strong> tenant claim name and identity model, including <code>tenantId</code>, Cognito <code>sub</code>, actor types, administrators, and privileged workflows.</li>
+            <li><strong>Domain:</strong> entity name and fields, lifecycle operations, allowed non-PII audit detail fields, reason-for-change rules, signature meanings, and validation evidence.</li>
+            <li><strong>Isolation:</strong> placeholder tenant IDs, roles, S3 prefixes, Athena partitions, OpenSearch index naming, authorization boundaries, and cross-tenant denial proof cases.</li>
+            <li><strong>Retention:</strong> Object Lock mode, organization-specific retention obligation, legal holds, teardown expectations, and resources that must use <code>RETAIN</code>.</li>
+            <li><strong>Cryptography:</strong> KMS ownership, key administrators and users, key policy, rotation, recovery, and least-privilege roles.</li>
+            <li><strong>Search and network:</strong> Athena, Lake Formation, and OpenSearch choices; endpoints; VPC controls; query limits; and indexing expectations.</li>
+            <li><strong>Governance:</strong> compliance/control mapping, evidence requirements, threat model, data classification, privacy review, independent validation, and regulatory interpretation.</li>
+            <li><strong>Operations:</strong> service ownership, monitoring, incident response, backup/recovery, resilience, cost limits, support, change management, and approved teardown procedure.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Copy and customize</span>
+          <h2>Complete starter prompt</h2>
+          <p>Select from the kickoff line through the final checklist item and copy it as one prompt. Customize every placeholder and unresolved decision before use.</p>
+        </div>
+        <div class="code complete-prompt">
+          <div class="code-label">Complete starter prompt &mdash; copy entire block</div>
+          <pre><code>/aidlc Build a minimal, self-contained AWS CDK app in TypeScript that is a working proof-of-concept for multi-tenant SaaS application-level audit logging. It captures a SaaS application's own domain audit events, attributes each to an actor and a tenant, delivers them reliably and decoupled from the request path, stores them immutably (append-only, WORM) in S3, enforces per-tenant isolation of the audit trail, and makes events searchable per tenant. The sample domain is a regulated analytical lab with a single Sample entity. The full build specification follows below - treat it as the authoritative detail for every stage.
+
+PROJECT VARIABLES AND DECISIONS
+Before implementation, create a customization record and require the project owner to replace or approve every bracketed placeholder and design decision. Do not infer real values, credentials, tenant identifiers, customer data, private endpoints, or PII.
+
+- Project/repository owner: &lt;PROJECT_OWNER&gt;
+- Repository name: &lt;PROJECT_REPOSITORY_NAME&gt;. The required example layout below uses soc2-audit-poc; if the owner changes it, update the root name consistently.
+- Runtime and exact package versions: &lt;NODE_VERSION&gt;, &lt;CDK_VERSION&gt;, &lt;TYPESCRIPT_VERSION&gt;, &lt;JEST_VERSION&gt;, and exact versions for every other dependency.
+- Target AWS account, Region, and environment: &lt;TARGET_AWS_ACCOUNT_ID&gt;, &lt;TARGET_AWS_REGION&gt;, &lt;ENVIRONMENT_NAME&gt;.
+- Deployment owner and explicit approver: &lt;DEPLOYMENT_OWNER&gt;, &lt;TARGET_ACCOUNT_OWNER_APPROVER&gt;.
+- Tenant claim, actor, and administrator model: &lt;TENANT_CLAIM_NAME&gt;, &lt;ACTOR_MODEL&gt;, &lt;ADMIN_MODEL&gt;.
+- Domain customizations and non-PII fields: &lt;DOMAIN_ENTITY_DECISIONS&gt;, &lt;ALLOWED_NON_PII_AUDIT_FIELDS&gt;.
+- Reason-for-change and signature rules: &lt;REASON_FOR_CHANGE_RULES&gt;, &lt;SIGNATURE_MEANING_RULES&gt;.
+- Placeholder tenant IDs, roles, prefixes, partition names, index naming, and isolation proof cases: &lt;TENANT_ISOLATION_DECISIONS&gt;.
+- Object Lock mode and validated retention obligation: &lt;OBJECT_LOCK_MODE&gt;, &lt;OBJECT_LOCK_RETENTION_DAYS&gt;.
+- KMS ownership, administrators, key users, key policy, and least-privilege roles: &lt;KMS_AND_IAM_DECISIONS&gt;.
+- Athena, Lake Formation, OpenSearch Serverless, and network controls: &lt;SEARCH_AND_NETWORK_DECISIONS&gt;.
+- Control mapping, evidence, threat model, privacy, validation, and independent reviewers: &lt;GOVERNANCE_DECISIONS&gt;.
+- Operational owner, incident response, monitoring, backup/recovery, cost, and Region constraints: &lt;OPERATIONS_DECISIONS&gt;.
+- Teardown expectations and resources that require RETAIN: &lt;TEARDOWN_AND_RETAIN_DECISIONS&gt;.
+
+Treat all defaults in this prompt as POC examples, not universal compliance requirements or legal conclusions. This POC is not production-ready, does not by itself satisfy SOC 2 or 21 CFR Part 11, and provides no compliance guarantee. Require substantial project-specific architecture, security, privacy, validation, operational, and regulatory review before audit-evidence or production use.
+
+STAGE-GATED DELIVERY
+Use a human-approved, stage-gated workflow. At the end of each stage, present assumptions, decisions, risks, generated artifacts, validation evidence, and open questions, then stop for explicit approval before continuing.
+
+1. Requirements and threat-model stage: confirm every project variable; define trust boundaries, tenant and administrator authorization, data classification, abuse cases, retention obligations, control mappings, evidence requirements, cost constraints, and success criteria.
+2. Architecture and design stage: produce the stack boundaries, data flows, event contract, IAM/KMS/S3/Athena/AOSS isolation design, failure modes, and teardown/RETAIN plan. Do not implement until approved.
+3. Implementation stage: generate the minimal self-contained CDK TypeScript project and application code described below. Pin every dependency to an exact version and explain each package.
+4. Verification stage: run local type checks, tests, CDK assertions or snapshots, and synthesis; demonstrate tenant-isolation policy tests and explain any validation that requires a deployed environment.
+5. Deployment-readiness stage: show the synthesized changes, permissions, costs, Object Lock consequences, rollback limitations, and production-hardening gaps. Do not run cdk deploy.
+6. Optional deployment and demo stage: proceed only after explicit confirmation from the owner of the named target AWS account. Run the demo walkthrough only after an approved deployment.
+
+GOAL AND SCOPE
+Build a minimal, self-contained AWS CDK TypeScript proof of concept for multi-tenant SaaS application-level audit logging. The sample domain is a regulated analytical lab with one Sample entity. Generate code and documentation; do not claim that resources exist before an authorized deployment succeeds.
+
+IDENTITY, API, AND DATA MODEL
+- Create an Amazon Cognito User Pool identity model with a custom tenantId claim and the Cognito sub claim as the actor identifier.
+- Protect Amazon API Gateway with a Cognito authorizer.
+- Implement a Sample Lambda and a DynamoDB Samples table with partition key tenantId and sort key sampleId.
+- Derive tenant and actor only from validated JWT claims. Never accept tenantId or actorId from the request body or other client-controlled fields.
+- Keep the application-layer tenant check even when infrastructure policies also enforce isolation.
+
+SAMPLE LIFECYCLE AND CONTROL BEHAVIOR
+Support these operations: SUBMIT, ACQUIRE, REPROCESS, REVIEW, APPROVE, SIGN, GET, UPDATE, DELETE.
+
+Reject applicable data-altering operations without a reason for change with HTTP 422. For this POC, REPROCESS and UPDATE require reasonForChange. Treat this as this POC template's design/control requirement mapped by the project to 21 CFR Part 11, not as a blanket legal determination. Validate the project-specific rules for any other operation during the requirements stage.
+
+After each successful DynamoDB write, emit exactly one custom EventBridge bus audit event. Do not emit an audit event for a failed write. Make retries and idempotency behavior explicit so one successful logical write has exactly one corresponding event. The contract supports GET; during the requirements stage, document and approve the read-audit behavior separately from the after-write guarantee.
+
+EXACT AUDIT EVENT CONTRACT
+Use this exact shared event contract:
+{
+  "eventId": "uuid-v4",
+  "eventVersion": "1.0",
+  "timestamp": "ISO-8601, server-set, never client-supplied",
+  "tenantId": "from JWT claim (lab site)",
+  "actorId": "from JWT sub claim (analyst)",
+  "actorType": "user | admin",
+  "operation": "SUBMIT | ACQUIRE | REPROCESS | REVIEW | APPROVE | SIGN | GET | UPDATE | DELETE",
+  "entityType": "Sample",
+  "entityId": "sample id",
+  "reasonForChange": "required on data-altering ops (REPROCESS/UPDATE); project control mapped to 21 CFR Part 11",
+  "signatureMeaning": "on REVIEW/APPROVE/SIGN, e.g. reviewed|approved|signed; project control mapped to 21 CFR Part 11",
+  "detail": { "before": {"...": "optional, non-PII"}, "after": {"...": "optional, non-PII"} }
+}
+
+Omit reasonForChange and signatureMeaning when not applicable. Limit detail to non-PII status, method, instrument, and analyte values approved during project customization. Validate all event fields server-side.
+
+DECOUPLED DELIVERY
+- EventBridge PutEvents must return on the request path before downstream Firehose or S3 delivery completes; document this asynchronous boundary and its failure implications.
+- Route the custom EventBridge bus through an EventBridge rule to Amazon Data Firehose and then Amazon S3.
+- Configure and document an S3 error/backup prefix for failed delivery records.
+- Add monitoring and tests for PutEvents failures and downstream delivery failures; do not claim zero loss without evidence.
+
+DURABLE APPEND-ONLY STORAGE
+- Configure the audit S3 bucket with versioning, a customer-managed KMS key for SSE-KMS, and S3 Object Lock.
+- Grant Firehose PutObject-only S3 permissions and only the KMS permissions required to put encrypted audit objects; do not grant overwrite, delete, retention bypass, or broad read permissions.
+- Enforce tenant-scoped reads.
+- Make OBJECT_LOCK_MODE and OBJECT_LOCK_RETENTION_DAYS configurable from the approved customization record.
+- Dynamic-partition Firehose output using this prefix structure: tenant_id=&lt;id&gt;/year=/month=/day=/...
+- Explicitly document Object Lock creation constraints, retention behavior, legal hold considerations, and teardown consequences.
+
+TENANT ISOLATION
+- DynamoDB: isolate data by the tenantId partition key and require server-derived tenantId on every access.
+- S3 and Athena: create a per-tenant IAM role that can read and list only its own S3 prefix, with explicit prefix conditions and equivalent Athena partition isolation.
+- OpenSearch Serverless: use one tenant index named audit-events-&lt;tenantId&gt; and a per-tenant data access policy.
+- Query Lambda: independently revalidate tenantId from the Cognito-authorized request before constructing any Athena or OpenSearch query.
+- Prove with automated and demo checks that placeholder Tenant B is denied access to placeholder Tenant A's S3 prefix, Athena partition, and AOSS index. Use synthetic placeholder tenants only.
+
+SEARCH
+- Create an AWS Glue Data Catalog table and an Athena workgroup with partition projection.
+- Structurally require a tenant_id predicate; do not rely only on caller discipline or query text instructions.
+- Support filters for tenantId, actorId, operation, entity (represented by entityType), entityId, and timestamp range.
+- Create an OpenSearch Serverless collection with one audit-events-&lt;tenantId&gt; index per tenant.
+- Feed OpenSearch through an EventBridge-subscribed indexing Lambda.
+- Apply per-tenant OpenSearch Serverless data access policies and approved network controls.
+- Wrap Athena and OpenSearch Serverless behind the same Cognito-authorized API through a Query Lambda that revalidates the tenant.
+
+REQUIRED ARCHITECTURE FLOW
+Tenant User
+  -&gt; API Gateway (Cognito authorizer validates tenantId and sub)
+  -&gt; Sample Lambda
+  -&gt; DynamoDB write
+  -&gt; EventBridge PutEvents (asynchronous downstream delivery)
+      -&gt; EventBridge rule -&gt; Firehose -&gt; Object-Locked S3 -&gt; Glue -&gt; Athena
+      -&gt; EventBridge rule -&gt; Indexing Lambda -&gt; AOSS tenant index
+
+Query path:
+Tenant User
+  -&gt; API Gateway
+  -&gt; Query Lambda (independently revalidates tenant)
+      -&gt; Athena and/or AOSS
+
+Use all four isolation layers: DynamoDB tenant partition; IAM plus S3 prefix conditions for Athena; one AOSS index per tenant; and application-layer tenant checks.
+
+REQUIRED REPOSITORY LAYOUT
+Generate this layout:
+soc2-audit-poc/
+|-- package.json / tsconfig.json / cdk.json / jest.config.js
+|-- bin/app.ts                              CDK app entrypoint (wires 4 stacks)
+|-- lib/
+|   |-- tenant-app-stack.ts                 Cognito, API GW, Sample Lambda, DynamoDB
+|   |-- audit-pipeline-stack.ts             EventBridge bus+rule, Firehose, S3, KMS
+|   |-- audit-search-stack.ts               Glue, Athena, OpenSearch Serverless collection, indexing Lambda
+|   |-- tenant-isolation-stack.ts           per-tenant IAM roles + AOSS policies, Query Lambda
+|-- src/
+|   |-- common/audit-event.ts               shared schema + builder (the contract)
+|   |-- sample-service/handler.ts           Sample lifecycle, emits audit events
+|   |-- audit-indexer/handler.ts            EventBridge -&gt; OpenSearch Serverless indexer
+|   |-- audit-query/handler.ts              Query Lambda (Athena + AOSS, tenant check)
+|-- test/                                   CDK unit/snapshot tests
+|-- scripts/demo-walkthrough.sh             end-to-end success-criteria demo
+|-- README.md
+
+IMPLEMENTATION AND TEST EXPECTATIONS
+- Keep the POC minimal and self-contained while implementing all four stacks and handlers in the required layout.
+- Use least-privilege IAM and tightly scoped KMS policies. Keep S3 Block Public Access enabled and do not make the bucket, API, collection, or indexes public.
+- Unit-test the shared event builder and operation rules, including server-set timestamp, JWT-derived tenant and actor, HTTP 422 behavior, omission of optional fields, non-PII detail validation, and exactly one audit event after each successful write.
+- Add CDK unit or snapshot tests for versioning, Object Lock, SSE-KMS, retention configuration, Firehose permissions and prefixes, EventBridge routes, Cognito authorization, tenant-scoped IAM, Athena requirements, AOSS policies, RETAIN resources, logging, and alarms.
+- Make scripts fail closed, use placeholder test data, and never embed credentials, account IDs, tenant/customer names, private endpoints, or PII.
+- Document assumptions, failure handling, retry/idempotency design, and what can only be tested after an approved deployment.
+
+PREDEPLOY VALIDATION
+Pin exact dependency versions and review package identity, provenance, licenses, install scripts, lockfile changes, and vulnerability findings before installation. Run, in order:
+
+npm install
+tsc --noEmit
+jest
+cdk synth
+
+Do not run cdk deploy without explicit confirmation from the owner of the named target AWS account. Object Lock retention can have irreversible consequences and retained resources can continue to incur cost. Run scripts/demo-walkthrough.sh only after an approved deployment.
+
+SUCCESS CRITERIA
+- A signed-in placeholder tenant action yields an event attributed to the JWT-derived actor and tenant.
+- Decoupled delivery reaches immutable S3 without loss under the tested and documented conditions; report evidence and limitations rather than making an unsupported absolute claim.
+- Cross-tenant reads are denied for S3 prefixes, Athena partitions, and AOSS indexes.
+- A tenant can retrieve live audit events by actor, operation, entity, tenant, and time range through the authorized query API.
+
+PRODUCTION HARDENING BEFORE AUDIT-GRADE USE
+Produce a clearly unresolved checklist that requires project-owner review before production or audit-evidence use:
+- Validate whether Object Lock COMPLIANCE mode is required. Use the owner-supplied example evaluation range of 365-2555 days only as an input to organization-specific legal, records, security, and compliance validation; do not select retention automatically.
+- Do not grant s3:BypassGovernanceRetention.
+- Apply RETAIN to the audit bucket and KMS key, and reconcile this with the approved teardown, cost, recovery, and data-disposition plan.
+- Enable and protect S3 access logging and CloudTrail S3 data events.
+- Use an approved AOSS VPC endpoint and network policy rather than public network access.
+- Consider and, based on project review, prefer Lake Formation filters over IAM-plus-prefix isolation for Athena.
+- Tighten KMS key administration and usage policy, enable rotation, and validate recovery ownership.
+- Complete incident response, monitoring and alerting, backup/recovery, resilience, cost limits, data minimization, privacy review, threat modeling, change control, operational ownership, and independent compliance/security validation.
+- Revalidate all control mappings and evidence with qualified project stakeholders; generated code and tests are not a compliance certification.</code></pre>
+        </div>
+      </section>
+
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Supported execution path</span>
+          <h2>Run the prompt with AI-DLC and Kiro</h2>
+          <p>AI-DLC is one supported stage-gated path. If you use another agentic coding tool, adapt slash-command and harness-specific syntax while retaining the approval gates and technical requirements.</p>
+        </div>
+        <div class="callout warn">
+          <p class="callout-title">Inspect before piping to a shell</p>
+          <p>Review the downloaded installer and its source before piping it to a shell. Also review generated code, exact dependency versions, lockfile changes, package provenance, licenses, install scripts, and vulnerability findings before accepting or running them.</p>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">1</span><h3>Install AI-DLC</h3></div>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>curl -fsSL https://github.com/awslabs/aidlc-workflows/releases/latest/download/install.sh | sh</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">2</span><h3>Initialize a new project folder</h3></div>
+          <p>In a new folder named with your approved placeholder-derived repository name, initialize Git, configure AI-DLC, choose the Kiro harness when prompted, and run its diagnostic.</p>
+          <div class="code">
+            <div class="code-label">bash</div>
+            <pre><code>git init
+aidlc config
+aidlc doctor</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-head"><span class="step-num">3</span><h3>Open Kiro and use the stage gates</h3></div>
+          <p>Open the new folder in Kiro, select the <code>aidlc</code> agent, paste the customized kickoff and full prompt as one block, and review and approve each stage gate. Treat generated output as a proposal that requires human review, not as pre-approved infrastructure.</p>
+        </div>
+      </section>
+
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Evaluate before use</span>
+          <h2>Architecture overview</h2>
+          <p>The prompt asks the coding tool to generate the following future POC flow. This overview helps reviewers evaluate the design before copying the prompt.</p>
+        </div>
+        <div class="code">
+          <div class="code-label">Proposed POC flow</div>
+          <pre><code>Tenant User
+  -&gt; API Gateway (Cognito authorizer validates tenantId/sub)
+  -&gt; Sample Lambda
+  -&gt; DynamoDB write
+  -&gt; EventBridge PutEvents (async)
+      |--&gt; rule -&gt; Firehose -&gt; Object-Locked S3 -&gt; Glue -&gt; Athena
+      `--&gt; rule -&gt; Indexing Lambda -&gt; AOSS tenant index
+
+Tenant User
+  -&gt; API Gateway
+  -&gt; Query Lambda (revalidates tenant)
+      `--&gt; Athena / AOSS</code></pre>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Layer</th><th>Proposed isolation control</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>DynamoDB</td><td>Tenant partition key with server-derived tenant context</td></tr>
+              <tr><td>S3 and Athena</td><td>Tenant prefix conditions, tenant partitions, and per-tenant roles</td></tr>
+              <tr><td>OpenSearch Serverless</td><td>One tenant index with a tenant-specific data access policy</td></tr>
+              <tr><td>Application</td><td>Independent tenant validation in write and query handlers</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Before production</span>
+          <h2>Review boundaries and deployment risk</h2>
+          <p>Keep these limitations visible throughout planning, generation, validation, and any separately approved deployment.</p>
+        </div>
+        <div class="callout warn">
+          <p class="callout-title">No compliance or production guarantee</p>
+          <ul>
+            <li>This is a POC prompt template, not a deployed application, validated control, audit opinion, regulatory determination, or production architecture.</li>
+            <li>SOC 2 and 21 CFR Part 11 applicability and evidence must be determined by qualified project stakeholders; generated controls and tests are not certification.</li>
+            <li>Before use, complete project-specific architecture, least-privilege, tenant-isolation, privacy, retention, threat-model, validation, observability, resilience, incident-response, recovery, cost, and operational reviews.</li>
+            <li>Object Lock retention can be irreversible. Never deploy without explicit target-account owner approval, and preserve required audit storage and KMS resources with an approved <code>RETAIN</code> and teardown plan.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="part">
+        <div class="part-head">
+          <span class="part-kicker">Context only</span>
+          <h2>References</h2>
+          <p>Use these resources to inform project review. Do not deploy sample repositories verbatim; assess, customize, secure, test, and approve all generated or sample code.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Resource</th><th>Link</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>AI-DLC getting started</td><td><a href="https://awslabs.github.io/aidlc-workflows/guide/01-getting-started/" target="_blank" rel="noreferrer">awslabs.github.io</a></td></tr>
+              <tr><td>AWS SaaS Factory serverless SaaS reference</td><td><a href="https://github.com/aws-samples/aws-saas-factory-ref-solution-serverless-saas" target="_blank" rel="noreferrer">github.com/aws-samples</a></td></tr>
+              <tr><td>Amazon EventBridge CDK audit service sample</td><td><a href="https://github.com/aws-samples/amazon-eventbridge-cdk-audit-service-sample" target="_blank" rel="noreferrer">github.com/aws-samples</a></td></tr>
+              <tr><td>AWS Solutions Constructs</td><td><a href="https://github.com/awslabs/aws-solutions-constructs" target="_blank" rel="noreferrer">github.com/awslabs</a></td></tr>
+              <tr><td>AWS Prescriptive Guidance for logging and monitoring</td><td><a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/logging-monitoring-for-application-owners/introduction.html" target="_blank" rel="noreferrer">docs.aws.amazon.com</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="shell footer-inner"><p>AWS services and workshop field guides</p><p><a href="index.html">Back to Solutions</a> <span aria-hidden="true">&middot;</span> <a href="../index.html">Home</a></p></div></footer>
+</body>
+</html>
