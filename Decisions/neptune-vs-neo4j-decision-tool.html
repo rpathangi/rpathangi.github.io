@@ -50,7 +50,7 @@
     --color-bg-secondary: #ffffff;
     --color-text: #1a1a1a;
     --color-text-secondary: #5e5e5e;
-    --color-text-muted: #9ca3af;
+    --color-text-muted: #6b7280;
     --color-border: rgba(0, 0, 0, 0.12);
     --color-border-light: rgba(0, 0, 0, 0.06);
     --color-surface: #f9fafb;
@@ -280,6 +280,7 @@
       <span><span id="pctNeo4j">50%</span> <b style="color:var(--neo4j-text)">Neo4j</b></span>
     </div>
   </div>
+  <p id="recStatus" role="status" aria-live="polite" aria-atomic="true" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0"></p>
 
   <!-- FEATURE TABLE -->
   <h2>Comprehensive feature comparison</h2>
@@ -332,6 +333,15 @@
   FACTORS.forEach(f => state[f.id] = 50);
   const byId = Object.fromEntries(FACTORS.map(f => [f.id, f]));
   const factorsEl = document.getElementById('factors');
+  const recStatusEl = document.getElementById('recStatus');
+  let announcementTimer = null;
+
+  function announceRecommendation(message) {
+    window.clearTimeout(announcementTimer);
+    announcementTimer = window.setTimeout(() => {
+      if (recStatusEl.textContent !== message) recStatusEl.textContent = message;
+    }, 150);
+  }
 
   // Importance is relative to the number of factors: top rank = total, bottom = 1.
   function importanceForRank(idx, total) {
@@ -341,7 +351,7 @@
     return importanceForRank(idx, total) + '/' + total;
   }
 
-  function render() {
+  function render(announce = false) {
     factorsEl.innerHTML = '';
     order.forEach((id, idx) => {
       const f = byId[id];
@@ -359,10 +369,10 @@
           '<input type="range" min="0" max="100" value="' + state[id] + '" id="s_' + id + '" aria-label="' + f.title + '">' +
         '</div>';
       factorsEl.appendChild(div);
-      div.querySelector('input').addEventListener('input', e => { state[id] = +e.target.value; compute(); });
+      div.querySelector('input').addEventListener('input', e => { state[id] = +e.target.value; compute(true); });
       addDnd(div);
     });
-    compute();
+    compute(announce);
   }
 
   // ----- drag & drop reordering -----
@@ -391,11 +401,11 @@
       const to = order.indexOf(targetId);
       order.splice(from, 1);
       order.splice(to, 0, dragId);
-      render();
+      render(true);
     });
   }
 
-  function compute() {
+  function compute(announce = false) {
     // Weight each factor's lean by its priority rank (top factor weighs most).
     let num = 0, den = 0;
     order.forEach((id, idx) => {
@@ -424,12 +434,15 @@
     winnerEl.style.color = color;
     detailEl.textContent = lead + ' - weighted by your priorities, with ' + topFactor + ' ranked highest.';
     card.style.borderColor = color;
+    if (announce) {
+      announceRecommendation('Recommendation: ' + winner + '. ' + lead + '. Neptune ' + neptunePct + '%, Neo4j ' + neo4jPct + '%. Highest priority: ' + topFactor + '.');
+    }
   }
 
   document.getElementById('resetBtn').addEventListener('click', () => {
     order = FACTORS.map(f => f.id);
     FACTORS.forEach(f => state[f.id] = 50);
-    render();
+    render(true);
   });
 
   render();
