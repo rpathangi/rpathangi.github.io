@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111111">
+<link rel="icon" href="data:,">
+<meta name="description" content="Compare Amazon Neptune and Neo4j using a weighted decision framework covering operations, graph data science, cost, scaling, and ecosystem fit.">
+<title>Decision Framework: Neptune vs Neo4j | Decisions</title>
+<style>
+  :root {
+    --site-ink: #111111;
+    --site-paper: #f7f7f5;
+    --site-orange: #ff9900;
+    --site-orange-bright: #ffb84d;
+    --site-muted: #686d69;
+    --site-font-sans: "Amazon Ember", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--site-ink); background: var(--site-paper); font-family: var(--site-font-sans); -webkit-font-smoothing: antialiased; }
+  .site-shell { width: min(calc(100% - 40px), 1180px); margin: 0 auto; }
+  .site-topbar { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(255,255,255,.12); background: rgba(17,17,17,.95); backdrop-filter: blur(16px); }
+  .site-topbar-inner { display: flex; align-items: center; min-height: 70px; }
+  .site-nav { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+  .site-nav::-webkit-scrollbar { display: none; }
+  .site-nav a { padding: 9px 12px; color: #c8cbc8; border-radius: 999px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: color .2s ease, background .2s ease; }
+  .site-nav a:hover, .site-nav a:focus-visible, .site-nav a[aria-current="page"] { color: var(--site-ink); background: var(--site-orange); outline: none; }
+  .site-breadcrumb { padding: 18px 0 0; color: var(--site-muted); font-size: 12px; }
+  .site-breadcrumb a { color: #995b00; font-weight: 700; text-decoration: none; }
+  .site-breadcrumb a:hover { text-decoration: underline; }
+  .site-footer { padding: 28px 0 34px; color: #b4b8b4; background: var(--site-ink); }
+  .site-footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+  .site-footer p { margin: 0; font-size: 11px; }
+  .site-footer a { color: var(--site-orange-bright); font-weight: 700; text-decoration: none; }
+  .site-footer a:hover { text-decoration: underline; }
+  @media (max-width: 600px) {
+    .site-shell { width: min(calc(100% - 28px), 1180px); }
+    .site-topbar-inner { min-height: 62px; align-items: flex-start; padding: 14px 0; }
+    .site-nav { margin-top: -2px; }
+    .site-nav a { padding: 7px 9px; font-size: 10px; }
+    .site-footer-inner { display: block; }
+    .site-footer p + p { margin-top: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; } }
+
+@scope (.decision-tool) {
+  :scope {
+    --color-bg: #faf9fc;
+    --color-bg-secondary: #ffffff;
+    --color-text: #1a1a1a;
+    --color-text-secondary: #5e5e5e;
+    --color-text-muted: #9ca3af;
+    --color-border: rgba(0, 0, 0, 0.12);
+    --color-border-light: rgba(0, 0, 0, 0.06);
+    --color-surface: #f9fafb;
+    --color-surface-active: #e5e7eb;
+    --color-surface-hover: #f3f4f6;
+    --color-primary: #9333ea;
+    --font-sans: 'Amazon Ember', 'Helvetica Neue', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-pill: 17px;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --neptune: #ff9900;
+    --neptune-text: #cc7a00;
+    --neo4j: #4a90d9;
+    --neo4j-text: #2f6db5;
+  }
+  :scope {
+    background: var(--color-bg);
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    margin: 0;
+    padding: 24px;
+    line-height: 1.5;
+  }
+  .tool-updated { display: block; margin: 0 0 28px; color: #6b7280; font-size: 12px; }
+  .table-scroll { max-width: 100%; overflow-x: auto; border-radius: var(--radius-md); }
+  @media (max-width: 700px) {
+    :scope { padding: 18px 14px 24px; }
+    .intro-grid, .overview-grid { grid-template-columns: 1fr; }
+    .tool-updated { margin-bottom: 22px; }
+    .factor { grid-template-columns: 24px minmax(0, 1fr); gap: 10px; padding: 12px 10px; }
+    .factor-head { align-items: flex-start; }
+    .ends { font-size: 11px; }
+    table { min-width: 760px; }
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--color-text-secondary); font-size: 14px; margin: 0 0 28px; }
+  h2 { font-size: 18px; margin: 36px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--color-border-light); }
+
+  /* intro cards */
+  .intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+  .intro-card { background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+  .intro-card.nep { border-top: 4px solid var(--neptune); }
+  .intro-card.neo { border-top: 4px solid var(--neo4j); }
+  .intro-card h3 { margin: 0 0 8px; font-size: 17px; }
+  .intro-card p { margin: 0 0 12px; font-size: 13.5px; color: var(--color-text-secondary); }
+  .links a { display: inline-block; font-size: 12.5px; margin: 0 10px 6px 0; color: var(--color-primary); text-decoration: none; font-weight: 600; }
+  .links a:hover { text-decoration: underline; }
+
+  /* overview detail cards */
+  .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ov-card { background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); padding: 18px 20px 18px 22px; box-shadow: var(--shadow-sm); }
+  .ov-card.nep { border-left: 4px solid var(--neptune); }
+  .ov-card.neo { border-left: 4px solid var(--neo4j); }
+  .ov-card h3 { margin: 0 0 10px; font-size: 16px; }
+  .ov-card ul { margin: 0; padding-left: 18px; }
+  .ov-card li { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; line-height: 1.5; }
+  .ov-card li b { color: var(--color-text); font-weight: 600; }
+
+  /* decision tool */
+  .recommendation {
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+    box-shadow: var(--shadow-md);
+    transition: all 0.25s ease;
+  }
+  .rec-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); margin-bottom: 8px; }
+  .rec-winner { font-size: 30px; font-weight: 700; margin-bottom: 10px; }
+  .rec-detail { font-size: 14px; color: var(--color-text-secondary); line-height: 1.5; }
+  .bar-track { height: 12px; border-radius: var(--radius-pill); background: var(--color-surface-active); overflow: hidden; display: flex; margin: 16px 0 8px; }
+  .bar-neptune { background: var(--neptune); height: 100%; transition: width 0.25s ease; }
+  .bar-neo4j { background: var(--neo4j); height: 100%; transition: width 0.25s ease; }
+  .bar-legend { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); }
+  .bar-legend b { font-weight: 600; }
+
+  .tool-hint { font-size: 12.5px; color: var(--color-text-secondary); margin: 0 0 14px; }
+
+  .factor {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    align-items: start;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: grab;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  }
+  .factor:hover { box-shadow: var(--shadow-sm); }
+  .factor.dragging { opacity: 0.5; border-color: var(--color-primary); }
+  .factor.drag-over { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary); }
+  .handle { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 2px; color: var(--color-text-muted); }
+  .rank { font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--color-primary); }
+  .grip { font-size: 14px; line-height: 1; letter-spacing: 1px; user-select: none; }
+  .factor-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .factor-title { font-size: 14px; font-weight: 600; }
+  .imp-badge { font-size: 11px; font-weight: 600; color: var(--color-primary); background: var(--color-surface-active); padding: 2px 9px; border-radius: var(--radius-pill); white-space: nowrap; }
+  .factor-q { font-size: 12.5px; color: var(--color-text-muted); margin: 2px 0 10px; }
+  .ends { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; gap: 8px; }
+  .end-neptune { color: var(--neptune-text); font-weight: 600; max-width: 46%; }
+  .end-neo4j { color: var(--neo4j-text); font-weight: 600; max-width: 46%; text-align: right; }
+  input[type=range] { width: 100%; margin: 0; cursor: pointer; accent-color: var(--color-primary); }
+  .reset { margin-top: 8px; background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text); font-family: var(--font-sans); font-size: 13px; padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; }
+  .reset:hover { background: var(--color-surface-hover); }
+  .note { font-size: 12px; color: var(--color-text-muted); margin-top: 14px; line-height: 1.5; }
+
+  /* feature table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--color-bg-secondary); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+  thead th { text-align: left; font-weight: 600; padding: 11px 14px; font-size: 12.5px; }
+  thead th:first-child { background: var(--color-surface); color: var(--color-text-secondary); width: 26%; }
+  thead th.nep { background: rgba(255,153,0,0.14); color: var(--neptune-text); }
+  thead th.neo { background: rgba(74,144,217,0.14); color: var(--neo4j-text); }
+  tbody td { padding: 10px 14px; border-top: 1px solid var(--color-border-light); vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--color-text); background: var(--color-surface); }
+  tbody tr:hover td { background: var(--color-surface-hover); }
+  tbody tr:hover td:first-child { background: var(--color-surface-active); }
+  .feat-name { font-weight: 600; color: var(--color-text); }
+  .feat-desc { font-weight: 400; font-size: 11.5px; color: var(--color-text-muted); margin-top: 3px; line-height: 1.45; }
+  .cat-row td { background: var(--color-primary); color: #fff; font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; padding: 7px 14px; }
+  .yes { color: #16a34a; font-weight: 600; }
+  .no { color: #dc2626; font-weight: 600; }
+  .footnote { font-size: 11.5px; color: var(--color-text-muted); margin-top: 10px; }
+}
+</style>
+</head>
+<body>
+<header class="site-topbar">
+  <div class="site-shell site-topbar-inner">
+    <nav class="site-nav" aria-label="Page navigation">
+      <a href="../index.html">Home</a>
+      <a href="../Services/index.html">Services</a>
+      <a href="../Workshops/index.html">Workshops</a>
+      <a href="../Solutions/index.html">Solutions</a>
+      <a href="index.html" aria-current="page">Decisions</a>
+    </nav>
+  </div>
+</header>
+<div class="site-shell site-breadcrumb" aria-label="Breadcrumb"><a href="index.html">Decisions</a> <span aria-hidden="true">›</span> Neptune vs Neo4j</div>
+<main class="decision-tool">
+<div class="wrap">
+  <h1>Decision Framework: Neptune vs Neo4j</h1>
+  <time class="tool-updated" datetime="2026-10-14">Updated Oct 14, 2026</time>
+
+  <!-- INTRO + LINKS -->
+  <h2>Service introductions &amp; official documentation</h2>
+  <div class="intro-grid">
+    <div class="intro-card nep">
+      <h3>Amazon Neptune</h3>
+      <p>A fully managed graph database service on AWS. It supports property-graph querying with Gremlin and openCypher, and RDF querying with SPARQL, with managed high availability, serverless scaling, and a separate analytics engine for large-scale graph algorithms.</p>
+      <div class="links">
+        <a href="https://aws.amazon.com/neptune/" target="_blank" rel="noopener noreferrer">Service overview &#8599;</a>
+        <a href="https://docs.aws.amazon.com/neptune/latest/userguide/intro.html" target="_blank" rel="noopener noreferrer">What is Neptune? &#8599;</a>
+        <a href="https://docs.aws.amazon.com/neptune/" target="_blank" rel="noopener noreferrer">Documentation &#8599;</a>
+        <a href="https://aws.amazon.com/neptune/faqs/" target="_blank" rel="noopener noreferrer">FAQs &#8599;</a>
+        <a href="https://aws.amazon.com/neptune/pricing/" target="_blank" rel="noopener noreferrer">Pricing &#8599;</a>
+      </div>
+    </div>
+    <div class="intro-card neo">
+      <h3>Neo4j</h3>
+      <p>The native property-graph database built around the Cypher query language, with the Graph Data Science (GDS) library for algorithms and graph ML. It runs self-managed (Community / Enterprise) or as the fully managed AuraDB cloud service available on AWS, Google Cloud, and Azure.</p>
+      <div class="links">
+        <a href="https://neo4j.com/product/neo4j-graph-database/" target="_blank" rel="noopener noreferrer">Service overview &#8599;</a>
+        <a href="https://neo4j.com/docs/getting-started/" target="_blank" rel="noopener noreferrer">Getting started &#8599;</a>
+        <a href="https://neo4j.com/docs/" target="_blank" rel="noopener noreferrer">Documentation &#8599;</a>
+        <a href="https://neo4j.com/product/auradb/" target="_blank" rel="noopener noreferrer">AuraDB (managed) &#8599;</a>
+        <a href="https://neo4j.com/docs/graph-data-science/current/" target="_blank" rel="noopener noreferrer">Graph Data Science &#8599;</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICE OVERVIEW DETAIL -->
+  <h2>Service overview</h2>
+  <div class="overview-grid">
+    <div class="ov-card nep">
+      <h3>Amazon Neptune</h3>
+      <ul>
+        <li><b>What it is.</b> A fully managed, OLTP-focused graph database service on AWS, with storage decoupled from compute so each scales independently.</li>
+        <li><b>Models &amp; languages.</b> Property graph via Gremlin and openCypher, plus RDF via SPARQL - the broadest query-language coverage of the two.</li>
+        <li><b>Deployment forms.</b> Provisioned clusters or Neptune Serverless (auto-scaling capacity); Neptune Analytics is a separate engine for large-scale algorithms.</li>
+        <li><b>Scale &amp; availability.</b> Up to 15 read replicas per cluster, Multi-AZ, Global Database for cross-region, and storage that grows automatically to 128 TiB.</li>
+        <li><b>Transactions.</b> ACID transactions; read-only queries run under snapshot isolation on a consistent snapshot.</li>
+        <li><b>AWS integration.</b> Native IAM, VPC, KMS, CloudWatch, S3 bulk load, and SageMaker-backed Neptune ML.</li>
+        <li><b>Best for.</b> Teams standardizing on AWS that want a managed graph store, RDF/SPARQL support, or minimal operational overhead.</li>
+      </ul>
+    </div>
+    <div class="ov-card neo">
+      <h3>Neo4j</h3>
+      <ul>
+        <li><b>What it is.</b> The native property-graph database built around Cypher, available self-managed (Community / Enterprise) or as the managed AuraDB cloud service.</li>
+        <li><b>Models &amp; languages.</b> Property graph with the richest native Cypher dialect; no RDF/SPARQL or Gremlin.</li>
+        <li><b>Deployment forms.</b> Run anywhere - on-prem, any cloud, local/embedded dev - or AuraDB on AWS, Google Cloud, and Azure.</li>
+        <li><b>Scale &amp; availability.</b> Causal clustering (Enterprise) with causal consistency, read replicas, and sharded property databases for horizontal scale.</li>
+        <li><b>Transactions.</b> Full ACID with a write-ahead log for durability.</li>
+        <li><b>Analytics &amp; ecosystem.</b> Graph Data Science library (65+ algorithms, ML pipelines), Bloom visualization, APOC utilities, and a large community.</li>
+        <li><b>Best for.</b> Teams needing heavy graph data science, multi-cloud/portability, or the deepest Cypher tooling and ecosystem.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- DECISION TOOL -->
+  <h2>Factor priorities</h2>
+  <p class="tool-hint"><b>Two dimensions:</b> drag the cards by the grip to order factors from most important (top) to least (bottom). Then slide each factor toward the service it favors (Neptune on the left, Neo4j on the right). Importance is shown per card as its rank out of the total number of factors.</p>
+  <div id="factors"></div>
+  <button class="reset" id="resetBtn">Reset</button>
+  <p class="note">Slider: 0 = strongly favors Neptune (left), 100 = strongly favors Neo4j (right), 50 = neutral. Importance is the factor's rank out of the total (top factor = highest).</p>
+
+  <!-- RECOMMENDER -->
+  <div class="recommendation" id="recCard">
+    <div class="rec-label">Recommendation</div>
+    <div class="rec-winner" id="recWinner">-</div>
+    <div class="rec-detail" id="recDetail">Rank the factors and set each slider to see a recommendation.</div>
+    <div class="bar-track">
+      <div class="bar-neptune" id="barNeptune" style="width:50%"></div>
+      <div class="bar-neo4j" id="barNeo4j" style="width:50%"></div>
+    </div>
+    <div class="bar-legend">
+      <span><b style="color:var(--neptune-text)">Neptune</b> <span id="pctNeptune">50%</span></span>
+      <span><span id="pctNeo4j">50%</span> <b style="color:var(--neo4j-text)">Neo4j</b></span>
+    </div>
+  </div>
+
+  <!-- FEATURE TABLE -->
+  <h2>Comprehensive feature comparison</h2>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable feature comparison">
+  <table>
+    <thead>
+      <tr><th>Feature</th><th class="nep">Amazon Neptune</th><th class="neo">Neo4j</th></tr>
+    </thead>
+    <tbody id="featureBody"></tbody>
+  </table>
+  </div>
+  <p class="footnote">Comparison reflects generally available capabilities of both platforms. Verify version-specific details and current limits against the official documentation linked above, as both services evolve frequently.</p>
+</div>
+</main>
+
+<script>
+(() => {
+  const toolRoot = window.document.querySelector('.decision-tool');
+  const document = {
+    createElement: tagName => window.document.createElement(tagName),
+    getElementById: id => toolRoot.querySelector('#' + id),
+    querySelectorAll: selector => toolRoot.querySelectorAll(selector),
+  };
+
+  // ---------- Decision tool ----------
+  // Factors carry a default lean hint but no fixed weight - weight comes from priority rank.
+  const FACTORS = [
+    { id: 'cloud', title: 'Cloud strategy', q: 'Where does this need to run?',
+      left: 'AWS-only, native integration', right: 'Multi-cloud / on-prem / hybrid' },
+    { id: 'gds', title: 'Graph data science', q: 'How much in-DB graph analytics / ML?',
+      left: 'Mostly transactional traversals', right: 'Heavy algorithms / graph ML (GDS)' },
+    { id: 'ops', title: 'Operating model', q: 'How much database operations do you want to own?',
+      left: 'Fully managed, minimal ops', right: 'Self-run / deep tuning control' },
+    { id: 'cost', title: 'Cost / pricing', q: 'What matters most on cost?',
+      left: 'Pay-per-use, no license, AWS billing', right: 'Predictable license / open-source self-host' },
+    { id: 'model', title: 'Data model', q: 'Which graph model do you need?',
+      left: 'Need RDF / SPARQL support', right: 'Pure property graph, Cypher-first' },
+    { id: 'scaling', title: 'Scaling pattern', q: 'What scaling pattern fits best?',
+      left: 'Serverless / pay-per-use', right: 'Steady provisioned capacity' },
+    { id: 'ecosystem', title: 'Ecosystem & tooling', q: 'How much do visualization & tooling maturity matter?',
+      left: 'AWS-native tooling is enough', right: 'Want Bloom, rich ecosystem, latest features' },
+    { id: 'integration', title: 'AWS service integration', q: 'How tightly must it fit the AWS stack?',
+      left: 'Deep IAM / VPC / KMS / SageMaker fit', right: 'Cloud-agnostic integration is fine' },
+    { id: 'team', title: 'Team familiarity', q: 'What has your team built on before?',
+      left: 'New to graph / AWS-centric team', right: 'Already skilled on Neo4j / Cypher' },
+  ];
+
+  const state = {};        // id -> lean 0..100
+  let order = FACTORS.map(f => f.id);   // priority order, index 0 = most important
+  FACTORS.forEach(f => state[f.id] = 50);
+  const byId = Object.fromEntries(FACTORS.map(f => [f.id, f]));
+  const factorsEl = document.getElementById('factors');
+
+  // Importance is relative to the number of factors: top rank = total, bottom = 1.
+  function importanceForRank(idx, total) {
+    return total - idx;   // e.g. 9 at top ... 1 at bottom when total = 9
+  }
+  function impLabel(idx, total) {
+    return importanceForRank(idx, total) + '/' + total;
+  }
+
+  function render() {
+    factorsEl.innerHTML = '';
+    order.forEach((id, idx) => {
+      const f = byId[id];
+      const div = document.createElement('div');
+      div.className = 'factor';
+      div.draggable = true;
+      div.dataset.id = id;
+      div.innerHTML =
+        '<div class="handle"><span class="rank">' + (idx + 1) + '</span><span class="grip">&#8942;&#8942;</span></div>' +
+        '<div class="factor-body">' +
+          '<div class="factor-head"><span class="factor-title">' + f.title + '</span>' +
+          '<span class="imp-badge">Importance ' + impLabel(idx, order.length) + '</span></div>' +
+          '<div class="factor-q">' + f.q + '</div>' +
+          '<div class="ends"><span class="end-neptune">' + f.left + '</span><span class="end-neo4j">' + f.right + '</span></div>' +
+          '<input type="range" min="0" max="100" value="' + state[id] + '" id="s_' + id + '">' +
+        '</div>';
+      factorsEl.appendChild(div);
+      div.querySelector('input').addEventListener('input', e => { state[id] = +e.target.value; compute(); });
+      addDnd(div);
+    });
+    compute();
+  }
+
+  // ----- drag & drop reordering -----
+  let dragId = null;
+  function addDnd(el) {
+    el.addEventListener('dragstart', e => {
+      dragId = el.dataset.id;
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      document.querySelectorAll('.factor').forEach(d => d.classList.remove('drag-over'));
+    });
+    el.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (el.dataset.id !== dragId) el.classList.add('drag-over');
+    });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      const targetId = el.dataset.id;
+      if (!dragId || dragId === targetId) return;
+      const from = order.indexOf(dragId);
+      const to = order.indexOf(targetId);
+      order.splice(from, 1);
+      order.splice(to, 0, dragId);
+      render();
+    });
+  }
+
+  function compute() {
+    // Weight each factor's lean by its priority rank (top factor weighs most).
+    let num = 0, den = 0;
+    order.forEach((id, idx) => {
+      const w = importanceForRank(idx, order.length);
+      num += (state[id] - 50) * w;
+      den += 50 * w;
+    });
+    const tilt = den ? num / den : 0;        // -1 (Neptune) .. +1 (Neo4j)
+    const neo4jPct = Math.round((tilt + 1) / 2 * 100);
+    const neptunePct = 100 - neo4jPct;
+    document.getElementById('barNeptune').style.width = neptunePct + '%';
+    document.getElementById('barNeo4j').style.width = neo4jPct + '%';
+    document.getElementById('pctNeptune').textContent = neptunePct + '%';
+    document.getElementById('pctNeo4j').textContent = neo4jPct + '%';
+
+    const winnerEl = document.getElementById('recWinner');
+    const detailEl = document.getElementById('recDetail');
+    const card = document.getElementById('recCard');
+    const strength = Math.abs(tilt);
+    const topFactor = byId[order[0]].title.toLowerCase();
+    let winner, color;
+    if (tilt <= 0) { winner = 'Amazon Neptune'; color = 'var(--neptune-text)'; }
+    else { winner = 'Neo4j'; color = 'var(--neo4j-text)'; }
+    const lead = strength < 0.08 ? 'Marginal lead' : (strength > 0.4 ? 'Clear fit' : 'Leans');
+    winnerEl.textContent = winner;
+    winnerEl.style.color = color;
+    detailEl.textContent = lead + ' - weighted by your priorities, with ' + topFactor + ' ranked highest.';
+    card.style.borderColor = color;
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    order = FACTORS.map(f => f.id);
+    FACTORS.forEach(f => state[f.id] = 50);
+    render();
+  });
+
+  render();
+
+  // ---------- Feature table ----------
+  const Y = '<span class="yes">Yes</span>';
+  const N = '<span class="no">No</span>';
+  const FEATURES = [
+    ['Deployment & operations', [
+      ['Primary form factor', 'Fully managed AWS service', 'Self-managed (Community / Enterprise) or managed AuraDB'],
+      ['Fully managed option', Y + ' (native)', Y + ' (AuraDB)'],
+      ['Self-hosted / on-prem', N + ' (AWS-only service)', Y + ' (Community / Enterprise)'],
+      ['Clouds supported', 'AWS only', 'AWS, Google Cloud, Azure (AuraDB) + anywhere self-hosted'],
+      ['Local / embedded dev edition', N, Y + ' (Community Edition, Desktop)'],
+      ['Serverless option', Y + ' (Neptune Serverless)', Y + ' (AuraDB auto-scales)'],
+      ['Managed upgrades / patching', Y + ' (AWS-managed)', 'Managed in AuraDB; self-managed otherwise'],
+      ['Primary workload focus', 'OLTP graph (plus Neptune Analytics for OLAP)', 'OLTP graph + in-DB analytics via GDS'],
+    ]],
+    ['Data model & query languages', [
+      ['Property graph', Y, Y],
+      ['RDF / triples', Y, N + ' (property graph only)'],
+      ['Cypher / openCypher', Y + ' (openCypher)', Y + ' (native Cypher - richest dialect)'],
+      ['Gremlin (Apache TinkerPop)', Y, N],
+      ['SPARQL (RDF querying)', Y, N],
+      ['Schema model', 'Schema-optional', 'Schema-optional'],
+      ['Stored procedures / extensions', 'User-defined functions (limited)', Y + ' (APOC library, custom procedures)'],
+      ['Full-text search', Y + ' (Neptune full-text via OpenSearch)', Y + ' (native full-text indexes)'],
+    ]],
+    ['Analytics & graph data science', [
+      ['Built-in algorithm library', 'Via Neptune Analytics (separate engine)', Y + ' (GDS: 65+ algorithms)'],
+      ['Graph ML / embeddings', 'Neptune ML (integrates SageMaker)', Y + ' (GDS ML pipelines)'],
+      ['Vector / semantic search', Y + ' (vector support in Neptune Analytics)', Y + ' (native vector indexes)'],
+      ['Common algorithms', 'Centrality, pathfinding, community (Analytics)', 'Centrality, community, similarity, pathfinding, link prediction'],
+    ]],
+    ['Scale, availability & performance', [
+      ['High availability', 'Multi-AZ, up to 15 read replicas', 'Causal clustering (Enterprise) / managed HA (AuraDB)'],
+      ['Read scaling', 'Read replicas + serverless', 'Read replicas / cluster members'],
+      ['Global / cross-region', Y + ' (Neptune Global Database)', Y + ' (AuraDB, Enterprise configurations)'],
+      ['Automatic storage scaling', Y + ' (to 128 TiB)', Y + ' (managed in AuraDB)'],
+      ['Transactions / ACID', Y + ' (ACID; snapshot isolation for reads)', Y + ' (full ACID, write-ahead log)'],
+      ['Horizontal sharding', 'Scales via read replicas (no user sharding)', Y + ' (sharded property databases, Enterprise)'],
+      ['Consistency model', 'Read-replica reads can lag primary', 'Causal consistency (read-your-own-writes)'],
+    ]],
+    ['Cost & licensing', [
+      ['Pricing model', 'Pay-as-you-go (instance-hours or serverless NCU-hours)', 'Open-source (Community) / commercial license (Enterprise) / usage-based (AuraDB)'],
+      ['License cost', 'None - usage-based AWS billing', 'Free (Community) or paid license (Enterprise)'],
+      ['Free / entry tier', 'No free tier (serverless lowers entry cost)', Y + ' (Community Edition free; AuraDB free tier)'],
+      ['Cost predictability', 'Variable with usage; serverless auto-scales', 'Predictable with licensed/provisioned; AuraDB scales with usage'],
+    ]],
+    ['Security & compliance', [
+      ['Encryption at rest / in transit', Y + ' (KMS)', Y],
+      ['IAM / fine-grained access', Y + ' (AWS IAM)', 'Role-based access control (Enterprise / AuraDB)'],
+      ['VPC / network isolation', Y + ' (runs in your VPC)', Y + ' (AuraDB private endpoints / self-managed)'],
+      ['Audit logging', Y, Y + ' (Enterprise)'],
+    ]],
+    ['Ecosystem & tooling', [
+      ['Visualization', 'Neptune workbench / Graph Explorer', 'Neo4j Bloom, Browser (rich, mature)'],
+      ['Import / bulk load', Y + ' (bulk loader from S3)', Y + ' (neo4j-admin import, LOAD CSV)'],
+      ['Driver / language support', 'Gremlin, openCypher, SPARQL drivers', 'Official drivers: Java, Python, JS, .NET, Go'],
+      ['Managed backups / PITR', Y + ' (automatic, point-in-time restore)', Y + ' (AuraDB automatic backups)'],
+      ['Community & learning resources', 'AWS docs, samples', 'Very large community, GraphAcademy, extensive docs'],
+    ]],
+  ];
+
+  // One-line "what it is / why it matters" per feature, for consistency across the table.
+  const DESC = {
+    'Primary form factor': 'The core way the database is delivered. Sets how much you operate versus consume.',
+    'Fully managed option': 'A hands-off, provider-run deployment. Reduces operational burden and staffing needs.',
+    'Self-hosted / on-prem': 'Ability to run the engine on your own infrastructure. Matters for control, data residency, and air-gapped environments.',
+    'Clouds supported': 'Which clouds the service can run on. Drives portability and multi-cloud strategy.',
+    'Local / embedded dev edition': 'A free local or embedded build for development. Speeds up prototyping and offline work.',
+    'Serverless option': 'Capacity that scales automatically with load. Avoids over-provisioning and cuts idle cost.',
+    'Managed upgrades / patching': 'Who handles version upgrades and security patches. Affects maintenance effort and risk.',
+    'Primary workload focus': 'Whether the engine targets transactional (OLTP) or analytical (OLAP) graph work. Guides fit for your access pattern.',
+    'Property graph': 'The labeled-node-and-relationship model. The dominant model for most graph applications.',
+    'RDF / triples': 'The W3C semantic-web triple model. Essential for ontologies, linked data, and standards-based interoperability.',
+    'Cypher / openCypher': 'The most widely used property-graph query language. Affects developer productivity and portability.',
+    'Gremlin (Apache TinkerPop)': 'A traversal-based graph query language. Useful for complex, step-by-step traversals and TinkerPop tooling.',
+    'SPARQL (RDF querying)': 'The standard query language for RDF data. Required if you work with triples and ontologies.',
+    'Schema model': 'How strictly structure is enforced. Impacts flexibility versus data-integrity guarantees.',
+    'Stored procedures / extensions': 'Ability to extend the database with custom procedures/libraries. Enables reusable server-side logic.',
+    'Full-text search': 'Indexed text search over node/edge properties. Important for search-driven and hybrid queries.',
+    'Built-in algorithm library': 'Ready-made graph algorithms shipped with the platform. Saves building analytics from scratch.',
+    'Graph ML / embeddings': 'Machine-learning features over the graph (e.g. embeddings, link prediction). Powers predictive use cases.',
+    'Vector / semantic search': 'Similarity search over vector embeddings. Key for GenAI, RAG, and recommendation workloads.',
+    'Common algorithms': 'The specific algorithms available (centrality, community, pathfinding, etc.). Determines analytical coverage.',
+    'High availability': 'Resilience to failures via replicas/clustering. Protects uptime for production workloads.',
+    'Read scaling': 'How read throughput grows under load. Affects performance for read-heavy traffic.',
+    'Global / cross-region': 'Replication across regions. Matters for global latency and disaster recovery.',
+    'Automatic storage scaling': 'Storage that grows (and shrinks) without manual intervention. Removes capacity-planning overhead.',
+    'Transactions / ACID': 'Guarantees that writes are atomic, consistent, isolated, and durable. Critical for data correctness.',
+    'Horizontal sharding': 'Splitting data across nodes for scale. Needed for very large graphs beyond a single machine.',
+    'Consistency model': 'What a client is guaranteed to read after a write. Affects correctness in distributed setups.',
+    'Pricing model': 'How you are charged (usage, license, instance-hours). Shapes total cost and budgeting.',
+    'License cost': 'Any licensing fee beyond infrastructure. A direct cost and procurement consideration.',
+    'Free / entry tier': 'A no-cost way to start. Lowers the barrier to evaluate and prototype.',
+    'Cost predictability': 'How stable spend is month to month. Important for budgeting and finance approval.',
+    'Encryption at rest / in transit': 'Protection of stored and moving data. A baseline security and compliance requirement.',
+    'IAM / fine-grained access': 'How access is authenticated and authorized. Central to least-privilege security.',
+    'VPC / network isolation': 'Keeping the database on a private network. Reduces exposure and supports compliance.',
+    'Audit logging': 'Records of who did what. Needed for compliance and incident investigation.',
+    'Visualization': 'Built-in tools to explore the graph visually. Speeds up analysis and stakeholder communication.',
+    'Import / bulk load': 'How quickly large datasets load in. Affects onboarding and migration effort.',
+    'Driver / language support': 'Official client libraries for programming languages. Determines ease of integration.',
+    'Managed backups / PITR': 'Automated backups and point-in-time restore. Protects against data loss and mistakes.',
+    'Community & learning resources': 'Docs, courses, and community size. Affects hiring, ramp-up, and troubleshooting speed.',
+  };
+
+  const body = document.getElementById('featureBody');
+  FEATURES.forEach(([cat, rows]) => {
+    const cr = document.createElement('tr');
+    cr.className = 'cat-row';
+    cr.innerHTML = '<td colspan="3">' + cat + '</td>';
+    body.appendChild(cr);
+    rows.forEach(([feat, nep, neo]) => {
+      const tr = document.createElement('tr');
+      const desc = DESC[feat] ? '<div class="feat-desc">' + DESC[feat] + '</div>' : '';
+      tr.innerHTML = '<td><div class="feat-name">' + feat + '</div>' + desc + '</td><td>' + nep + '</td><td>' + neo + '</td>';
+      body.appendChild(tr);
+    });
+  });
+})();
+</script>
+<footer class="site-footer">
+  <div class="site-shell site-footer-inner">
+    <p>AWS decision field guides</p>
+    <p><a href="index.html">Back to Decisions</a> · <a href="../index.html">Back to home</a></p>
+  </div>
+</footer>
+</body>
+</html>
