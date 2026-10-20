@@ -356,7 +356,7 @@
           '<span class="imp-badge">Importance ' + impLabel(idx, order.length) + '</span></div>' +
           '<div class="factor-q">' + f.q + '</div>' +
           '<div class="ends"><span class="end-neptune">' + f.left + '</span><span class="end-neo4j">' + f.right + '</span></div>' +
-          '<input type="range" min="0" max="100" value="' + state[id] + '" id="s_' + id + '">' +
+          '<input type="range" min="0" max="100" value="' + state[id] + '" id="s_' + id + '" aria-label="' + f.title + '">' +
         '</div>';
       factorsEl.appendChild(div);
       div.querySelector('input').addEventListener('input', e => { state[id] = +e.target.value; compute(); });
